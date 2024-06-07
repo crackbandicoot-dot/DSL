@@ -1,39 +1,32 @@
-﻿using DSL;
-using DSL.Instructions;
-using DSL.Instructions.Expressions;
-using DSL.Instructions.Expressions.BooleanExpressions;
-using DSL.Instructions.Expressions.BooleanExpressions.Comparators;
-
+﻿using DSL.Evaluator.Instructions.Statements;
+using DSL.Evaluator.Expressions;
+using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
+using DSL.Parser;
+using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 internal class Program
 {
     private static void Main(string[] args)
     {
-        //Casos Bases
-        SimpleExpression<bool> True = new SimpleExpression<bool>(true);
-        SimpleExpression<bool> False=  new SimpleExpression<bool> (false);
-        //Casos Recursivos
-        AndOperation and1 = new AndOperation(True,False);
-        OrOperation or1 = new OrOperation(and1,False);
-        Not not1 = new Not(or1);
-        Console.WriteLine(not1.Evaluate());
-        // Esto es evaluar la expresion
+        //int[] a = new[] { 1, 2 };
+        
+        Number n2 = 2;
+        IDSLType n3 = n2;
+        Console.WriteLine((Number)n3/n2);
 
-        // !((true && false) || false)
-
-
-
-
-        /* Console.WriteLine('"'=='"');
-         string path = @"C:\source\repos\CP\DSL\Test.txt";
+       /* // Console.WriteLine('"'=='"');
+        string path = @"C:\source\repos\CP\DSL\Test.txt";
          StreamReader stream = new StreamReader(path);
          string input = stream.ReadToEnd();
-         Lexer lexer = new Lexer(input);
-         lexer.NextToken();
-         Parser parser = new Parser(lexer);
+         Lexer lex = new Lexer(input);
+         lex.NextToken();
+         Parser parser = new Parser(lex);
          parser.NextInstruction();
-         Console.WriteLine(((ValuedInstruction<bool>)parser.CurrentInstruction).Execute());
+         while (parser.CurrentInstruction is not EndInstruction)
+         {
+            parser.CurrentInstruction.Execute();
+            parser.NextInstruction();
+         }    
        */
     }
-      
-
 }

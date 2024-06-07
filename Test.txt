@@ -1,0 +1,10 @@
+if(true)
+{
+	print("testing1");
+	print("testing2");
+}
+if(!true)
+{
+	print("testing3");
+}
+
