@@ -4,15 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DSL.Evaluator.Expressions;
+using DSL.Evaluator.LenguajeTypes;
+using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 
 namespace DSL.Evaluator.Expressions.BooleanExpressions.Comparators
 {
-    internal class GreaterOrEqual<TCompare> : Comparator<TCompare, TCompare> where TCompare : IComparable<TCompare>
+    internal class GreaterOrEqual : BinaryExpression
     {
-        public GreaterOrEqual(Expression<TCompare> left, Expression<TCompare> right) : base(left, right)
+        public GreaterOrEqual(Expression left, Expression right) : base(left, right)
         {
         }
-
-        public override bool Compare(TCompare left, TCompare right) => left.CompareTo(right) >= 0;
+        protected override IDSLType Operate(IDSLType left, IDSLType right)
+        {
+            if (left is Number l && right is Number r)
+            {
+                Bool res = l >= r;
+                return res;
+            }
+            throw new Exception("Cannot compare l and r");
+        }
     }
 }

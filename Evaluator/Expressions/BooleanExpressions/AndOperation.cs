@@ -3,13 +3,20 @@ using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 namespace DSL.Evaluator.Expressions.BooleanExpressions
 {
-    internal class AndOperation : BinaryExpression<Bool>
+    internal class AndOperation : BinaryExpression
     {
-        public AndOperation(Expression<Bool> left, Expression<Bool> right) : base(left, right)
+        public AndOperation(Expression left, Expression right) : base(left, right)
         {
         }
 
-        protected override Bool Operate(Bool left, Bool right) => left & right;
+        protected override IDSLType Operate(IDSLType left, IDSLType right)
+        {
+            if (left is Bool l && right is Bool r)
+            {
+                return l & r;
+            }
+            throw new ArgumentException("Cannot apply the operator && betwen left and rigth");
+        }
     }
 }
 

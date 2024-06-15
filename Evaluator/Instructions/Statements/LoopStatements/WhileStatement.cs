@@ -5,23 +5,24 @@ using System.Threading.Tasks;
 using DSL.Evaluator.Expressions;
 using DSL.Evaluator.Instructions;
 using DSL.Evaluator.Instructions.Statements;
+using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 
 namespace DSL.Evaluator.Instructions.Statements.LoopStatements
 {
     internal class WhileStatement : Instruction
     {
-        private readonly Expression<bool> stopCondition;
+        private readonly Bool condition;
         private readonly InstructionBlock actionBlock;
 
-        public WhileStatement(Expression<bool> stopCondition, InstructionBlock actionBlock)
+        public WhileStatement(Bool condition, InstructionBlock actionBlock)
         {
-            this.stopCondition = stopCondition;
+            this.condition = condition;
             this.actionBlock = actionBlock;
         }
 
         public override void Execute()
         {
-            while (stopCondition.Evaluate())
+            while (condition)
             {
                 actionBlock.Execute();
             }

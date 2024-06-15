@@ -59,6 +59,7 @@ namespace DSL.Lexer
         If,
         Not,
         NotEqual,
-        Print
+        Print,
+        Power
     }
 }

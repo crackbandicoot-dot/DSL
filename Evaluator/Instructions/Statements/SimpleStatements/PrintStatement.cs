@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using DSL.Evaluator.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using DSL.Evaluator.Expressions;
-using DSL.Evaluator.Instructions;
 
 namespace DSL.Evaluator.Instructions.Statements.SimpleStatements
 {
-    internal class PrintStatement : Instruction
+    internal class PrintStatement :Instruction
     {
-        private readonly Expression<string> str;
+        private readonly Expression exp;
 
-        public PrintStatement(Expression<string> str)
+        public PrintStatement(Expression exp)
         {
-            this.str = str;
+            this.exp = exp;
         }
 
         public override void Execute()
         {
-            Console.WriteLine(str.Evaluate());
+            Console.WriteLine(exp.Evaluate());
         }
     }
 }

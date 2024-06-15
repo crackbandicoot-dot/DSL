@@ -1,13 +1,15 @@
-﻿namespace DSL.Evaluator.Expressions
+﻿using DSL.Evaluator.LenguajeTypes;
+
+namespace DSL.Evaluator.Expressions
 {
-    internal class SimpleExpression<TReturn> : Expression<TReturn>
+    internal class SimpleExpression : Expression
     {
-        private readonly TReturn value;
-        public SimpleExpression(TReturn value)
+        private readonly IDSLType value;
+        public SimpleExpression(IDSLType value)
         {
             this.value = value;
         }
-        public override TReturn Evaluate() => value;
+        public override IDSLType Evaluate() => value;
     }
 
 }

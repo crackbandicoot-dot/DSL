@@ -3,24 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DSL.Evaluator.Expressions;
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
-namespace DSL.Evaluator.Expressions.BooleanExpressions.Comparators
+namespace DSL.Evaluator.Expressions.NumberExpressions
 {
-    internal class LessOrEqual : BinaryExpression
+    internal class MultiplicationOperation : BinaryExpression
     {
-        public LessOrEqual(Expression left, Expression right) : base(left, right)
+        public MultiplicationOperation(Expression left, Expression right) : base(left, right)
         {
         }
+
         protected override IDSLType Operate(IDSLType left, IDSLType right)
         {
             if (left is Number l && right is Number r)
             {
-                Bool res = l <= r;
-                return res;
+                return l * r;
             }
-            throw new Exception("Cannot compare l and r");
+            throw new ArgumentException("Cannot apply the operator * betwen left and rigth");
         }
     }
 }

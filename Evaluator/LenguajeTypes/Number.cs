@@ -1,8 +1,10 @@
-﻿using System;
+﻿using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,7 +29,7 @@ namespace DSL.Evaluator.LenguajeTypes
         {
             this.value = value;
         }
-
+        
         public static implicit operator Number(int value)
         {
             return new Number(value);
@@ -57,9 +59,17 @@ namespace DSL.Evaluator.LenguajeTypes
         {
             return number.value;
         }
+        public static Number operator^(Number num1,Number num2)
+        {
+            return Math.Pow(num1.value, num2.value);
+        }
         public static Number operator +(Number num1,Number num2)
         {
             return new Number(num1.value+num2.value);  
+        }
+        public static Number operator -(Number num)
+        {
+            return new Number(-num.value);
         }
         public static Number operator -(Number num1,Number num2)
         {
@@ -72,6 +82,22 @@ namespace DSL.Evaluator.LenguajeTypes
         public static Number operator *(Number num1, Number num2)
         {
             return new Number(num1.value * num2.value);
+        }
+        public static bool operator <(Number num1, Number num2)
+        {
+            return num1.value< num2.value;
+        }
+        public static bool operator <=(Number num1, Number num2)
+        {
+            return num1.value<=num2.value;
+        }
+        public static bool operator >=(Number num1, Number num2)
+        {
+            return num1.value >= num2.value;
+        }
+        public static bool operator >(Number num1,Number num2)
+        {
+            return num1.value>num2.value;
         }
         public static Number operator /(Number num1, Number num2)
         {
@@ -96,6 +122,11 @@ namespace DSL.Evaluator.LenguajeTypes
         public override string ToString()
         {
             return value.ToString();
+        }
+
+        bool IEquatable<IDSLType>.Equals(IDSLType? other)
+        {
+            throw new NotImplementedException();
         }
     }
 

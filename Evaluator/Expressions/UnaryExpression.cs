@@ -1,16 +1,18 @@
-﻿namespace DSL.Evaluator.Expressions
-{
-    internal abstract class UnaryExpression<TReturn> : Expression<TReturn>
-    {
-        private readonly Expression<TReturn> operand;
+﻿using DSL.Evaluator.LenguajeTypes;
 
-        public UnaryExpression(Expression<TReturn> operand)
+namespace DSL.Evaluator.Expressions
+{
+    internal abstract class UnaryExpression: Expression
+    {
+        private readonly Expression operand;
+
+        public UnaryExpression(Expression operand)
         {
             this.operand = operand;
         }
 
-        public override TReturn Evaluate() => Operate(operand.Evaluate());
-        protected abstract TReturn Operate(TReturn operand);
+        public override  IDSLType Evaluate() => Operate(operand.Evaluate());
+        protected abstract IDSLType Operate(IDSLType operand);
     }
 
 }

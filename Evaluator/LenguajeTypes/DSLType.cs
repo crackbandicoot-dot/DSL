@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace DSL.Evaluator.LenguajeTypes
 {
-    internal interface IDSLType : IEquatable<IDSLType>
+    internal enum DSLType
     {
-
+        Number, Bool,String, Array, List
     }
 }

@@ -52,6 +52,11 @@ namespace DSL.Evaluator.LenguajeTypes
             {
                 return value.ToString();
             }
+
+            bool IEquatable<IDSLType>.Equals(IDSLType? other)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [TypeConverter(typeof(BooleanConverter))]

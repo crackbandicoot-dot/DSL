@@ -4,25 +4,27 @@ using System.Text;
 using System.Threading.Tasks;
 using DSL.Evaluator.Expressions;
 using DSL.Evaluator.Instructions;
+using DSL.Evaluator.LenguajeTypes;
+using DSL.Scope;
 
 namespace DSL.Evaluator.Instructions.Statements.SimpleStatements
 {
-    internal class VariableDeclarationStatement<T> : Instruction
+    internal class VariableDeclarationStatement : Instruction 
     {
-        private readonly Dictionary<string, object> scopeVariables;
+        private readonly Scope<IDSLType> scope;
         private readonly string identifier;
-        private readonly Expression<T> expValue;
+        private readonly Expression exp;
 
-        public VariableDeclarationStatement(Dictionary<string, object> scopeVariables, string identifier, Expression<T> expValue)
+        public VariableDeclarationStatement(Scope<IDSLType> scope, string identifier, Expression exp)
         {
-            this.scopeVariables = scopeVariables;
+            this.scope= scope;
             this.identifier = identifier;
-            this.expValue = expValue;
+            this.exp = exp;
         }
 
         public override void Execute()
         {
-            scopeVariables.Add(identifier, expValue.Evaluate());
+            scope.Declare(identifier, exp.Evaluate());
         }
     }
 }
