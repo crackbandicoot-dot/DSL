@@ -10,7 +10,7 @@ namespace DSL.Evaluator.Expressions.BooleanExpressions.Comparators
 {
     internal class LessOrEqual : BinaryExpression
     {
-        public LessOrEqual(Expression left, Expression right) : base(left, right)
+        public LessOrEqual(IExpression left, IExpression right) : base(left, right)
         {
         }
         protected override IDSLType Operate(IDSLType left, IDSLType right)

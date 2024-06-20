@@ -2,14 +2,14 @@
 
 namespace DSL.Evaluator.Expressions
 {
-    internal class SimpleExpression : Expression
+    internal class SimpleExpression : IExpression
     {
         private readonly IDSLType value;
         public SimpleExpression(IDSLType value)
         {
             this.value = value;
         }
-        public override IDSLType Evaluate() => value;
+        public IDSLType Evaluate() => value;
     }
 
 }

@@ -11,7 +11,7 @@ namespace DSL.Evaluator.Expressions.BooleanExpressions.Comparators
 {
     internal class Less : BinaryExpression
     {
-        public Less(Expression left, Expression right) : base(left, right)
+        public Less(IExpression left, IExpression right) : base(left, right)
         {
         }
         protected override IDSLType Operate(IDSLType left, IDSLType right)

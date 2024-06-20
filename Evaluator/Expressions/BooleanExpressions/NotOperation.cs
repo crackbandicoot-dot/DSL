@@ -11,7 +11,7 @@ namespace DSL.Evaluator.Expressions.BooleanExpressions
 {
     internal class NotOperation : UnaryExpression
     {
-        public NotOperation(Expression operand) : base(operand)
+        public NotOperation(IExpression operand) : base(operand)
         {
         }
 

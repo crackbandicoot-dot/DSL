@@ -10,7 +10,7 @@ namespace DSL.Evaluator.Expressions.BooleanExpressions.Comparators
 {
     internal class NotEqual : BinaryExpression
     {
-        public NotEqual(Expression left, Expression right) : base(left, right)
+        public NotEqual(IExpression left, IExpression right) : base(left, right)
         {
         }
 

@@ -10,7 +10,7 @@ namespace DSL.Evaluator.Expressions.NumberExpressions
 {
     internal class DivideOperation : BinaryExpression
     {
-        public DivideOperation(Expression left, Expression right) : base(left, right)
+        public DivideOperation(IExpression left, IExpression right) : base(left, right)
         {
         }
 

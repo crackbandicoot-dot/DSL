@@ -9,7 +9,7 @@ namespace DSL.Evaluator.Expressions.NumberExpressions
 {
     internal class MultiplicationOperation : BinaryExpression
     {
-        public MultiplicationOperation(Expression left, Expression right) : base(left, right)
+        public MultiplicationOperation(IExpression left, IExpression right) : base(left, right)
         {
         }
 

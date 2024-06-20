@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Instructions
 {
-    internal abstract class Instruction
+    internal interface IInstruction
     {
         public abstract void Execute();
     }

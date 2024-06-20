@@ -5,26 +5,37 @@ using System.Threading.Tasks;
 using DSL.Evaluator.Expressions;
 using DSL.Evaluator.Instructions;
 using DSL.Evaluator.Instructions.Statements;
+using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 
 namespace DSL.Evaluator.Instructions.Statements.LoopStatements
 {
-    internal class WhileStatement : Instruction
+    internal class WhileStatement : IInstruction
     {
-        private readonly Bool condition;
+        private readonly IExpression condition;
         private readonly InstructionBlock actionBlock;
 
-        public WhileStatement(Bool condition, InstructionBlock actionBlock)
+        public WhileStatement(IExpression condition, InstructionBlock actionBlock)
         {
             this.condition = condition;
             this.actionBlock = actionBlock;
         }
 
-        public override void Execute()
+        public void Execute()
         {
-            while (condition)
+            
+           
+            if(condition.Evaluate() is Bool b)
             {
-                actionBlock.Execute();
+                while(b)
+                {
+                    actionBlock.Execute();
+                    b = (Bool)(condition.Evaluate());
+                }
+            }
+            else
+            {
+                throw new NotImplementedException("Expected boolean condition");
             }
         }
     }

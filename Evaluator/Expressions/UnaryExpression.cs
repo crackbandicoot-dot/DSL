@@ -2,16 +2,16 @@
 
 namespace DSL.Evaluator.Expressions
 {
-    internal abstract class UnaryExpression: Expression
+    internal abstract class UnaryExpression: IExpression
     {
-        private readonly Expression operand;
+        private readonly IExpression operand;
 
-        public UnaryExpression(Expression operand)
+        public UnaryExpression(IExpression operand)
         {
             this.operand = operand;
         }
 
-        public override  IDSLType Evaluate() => Operate(operand.Evaluate());
+        public  IDSLType Evaluate() => Operate(operand.Evaluate());
         protected abstract IDSLType Operate(IDSLType operand);
     }
 

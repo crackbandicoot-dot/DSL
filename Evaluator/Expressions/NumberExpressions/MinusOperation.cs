@@ -9,7 +9,7 @@ namespace DSL.Evaluator.Expressions.NumberExpressions
 {
     internal class MinusOperation : BinaryExpression
     {
-        public MinusOperation(Expression left, Expression right) : base(left, right)
+        public MinusOperation(IExpression left, IExpression right) : base(left, right)
         {
         }
         protected override IDSLType Operate(IDSLType left, IDSLType right)

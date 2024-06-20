@@ -9,7 +9,7 @@ namespace DSL.Evaluator.Expressions.NumberExpressions
 {
     internal class PlusOperation : BinaryExpression
     {
-        public PlusOperation(Expression left, Expression right) : base(left, right)
+        public PlusOperation(IExpression left, IExpression right) : base(left, right)
         { }
      
 

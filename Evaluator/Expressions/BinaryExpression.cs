@@ -7,19 +7,19 @@ using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Expressions
 {
-    internal abstract class BinaryExpression : Expression
+    internal abstract class BinaryExpression : IExpression
     {
-        private readonly Expression left;
-        private readonly Expression right;
+        private readonly IExpression left;
+        private readonly IExpression right;
 
-        protected BinaryExpression(Expression left, Expression right)
+        protected BinaryExpression(IExpression left, IExpression right)
         {
             this.left = left;
             this.right = right;
         }
 
         protected abstract IDSLType Operate(IDSLType left, IDSLType right);
-        public override IDSLType Evaluate() => Operate(left.Evaluate(), right.Evaluate());
+        public IDSLType Evaluate() => Operate(left.Evaluate(), right.Evaluate());
     }
 
 }

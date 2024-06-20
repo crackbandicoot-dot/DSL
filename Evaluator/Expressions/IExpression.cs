@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Expressions
 {
-    internal abstract class Expression
+    internal interface  IExpression
     {
         public abstract IDSLType Evaluate();
     }

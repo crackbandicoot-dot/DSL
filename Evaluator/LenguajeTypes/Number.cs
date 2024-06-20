@@ -126,7 +126,18 @@ namespace DSL.Evaluator.LenguajeTypes
 
         bool IEquatable<IDSLType>.Equals(IDSLType? other)
         {
-            throw new NotImplementedException();
+            if (other is Number n)
+            {
+                if (this.IsInteger() && n.IsInteger())
+                {
+                    return (int)(this.value) == (int)(n.value);   
+                }
+                else
+                {
+                    return this.value == n.value;
+                }
+            }
+            return false;
         }
     }
 

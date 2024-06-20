@@ -5,7 +5,7 @@ namespace DSL.Evaluator.Expressions.BooleanExpressions
 {
     internal class OrOperation : BinaryExpression
     {
-        public OrOperation(Expression left, Expression right) : base(left, right)
+        public OrOperation(IExpression left, IExpression right) : base(left, right)
         {
         }
 

@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Instructions.Statements.SimpleStatements
 {
-    internal class PrintStatement :Instruction
+    internal class PrintStatement :IInstruction
     {
-        private readonly Expression exp;
+        private readonly IExpression exp;
 
-        public PrintStatement(Expression exp)
+        public PrintStatement(IExpression exp)
         {
             this.exp = exp;
         }
 
-        public override void Execute()
+        public void Execute()
         {
             Console.WriteLine(exp.Evaluate());
         }

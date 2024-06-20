@@ -1,5 +1,5 @@
 ﻿using DSL.Evaluator.LenguajeTypes;
-using DSL.Scope;
+using DSL.Evaluator.Scope;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Expressions.Variables
 {
-    internal class Variable : Expression
+    internal class Variable : IExpression
     {
         private readonly Scope<IDSLType> scope;
         private readonly string id;
@@ -18,10 +18,7 @@ namespace DSL.Evaluator.Expressions.Variables
             this.id= id;
             this.scope = scope;
         }
-
-        
-
-        public override IDSLType Evaluate()
+        public IDSLType Evaluate()
         {
             return scope.GetFromHierarchy(id);
         }

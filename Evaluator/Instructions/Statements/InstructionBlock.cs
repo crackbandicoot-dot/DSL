@@ -5,20 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using DSL.Evaluator.Instructions;
 using DSL.Evaluator.LenguajeTypes;
-using DSL.Scope;
+using DSL.Evaluator.Scope;
 
 namespace DSL.Evaluator.Instructions.Statements
 {
-    internal class InstructionBlock : Instruction
+    internal class InstructionBlock : IInstruction
     {
-        private readonly List<Instruction> instructions;
-        private Scope<IDSLType> scopeVariables;
-        public InstructionBlock(List<Instruction> instructions, Scope<IDSLType> scopeVariables)
+        private readonly List<IInstruction> instructions;
+        public Scope<IDSLType> ScopeVariables { get; }
+        public InstructionBlock(List<IInstruction> instructions, Scope<IDSLType> scopeVariables)
         {
             this.instructions = instructions;
-            this.scopeVariables = scopeVariables;
+            this.ScopeVariables = scopeVariables;
         }
-        public override void Execute()
+        public void Execute()
         {
             foreach (var instruction in instructions)
             {

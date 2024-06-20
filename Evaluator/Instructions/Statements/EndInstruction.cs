@@ -7,9 +7,9 @@ using DSL.Evaluator.Instructions;
 
 namespace DSL.Evaluator.Instructions.Statements
 {
-    internal class EndInstruction : Instruction
+    internal class EndInstruction : IInstruction
     {
-        public override void Execute()
+        public void Execute()
         {
 
         }

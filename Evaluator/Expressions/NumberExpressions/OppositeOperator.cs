@@ -9,7 +9,7 @@ namespace DSL.Evaluator.Expressions.NumberExpressions
 {
     internal class OppositeOperator : UnaryExpression
     {
-        public OppositeOperator(Expression operand) : base(operand)
+        public OppositeOperator(IExpression operand) : base(operand)
         {
         }
 

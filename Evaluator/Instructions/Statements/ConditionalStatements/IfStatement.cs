@@ -11,20 +11,20 @@ using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 
 namespace DSL.Evaluator.Instructions.Statements.ConditionalStatements
 {
-    internal class IfStatement : Instruction
+    internal class IfStatement : IInstruction
     {
         
         private readonly InstructionBlock instructionBlock;
-        private readonly Expression condition;
+        private readonly IExpression condition;
 
-        public IfStatement(Expression condition, InstructionBlock instructionBlock)
+        public IfStatement(IExpression condition, InstructionBlock instructionBlock)
         {
             this.condition = condition;
             this.instructionBlock = instructionBlock;
             
         }
 
-        public override void Execute()
+        public void Execute()
         {
             IDSLType value = condition.Evaluate();
             if (value is Bool b)

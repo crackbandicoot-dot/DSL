@@ -12,7 +12,7 @@ namespace DSL.Evaluator.Expressions.BooleanExpressions.Comparators
 {
     internal class Greater : BinaryExpression
     {
-        public Greater(Expression left, Expression right) : base(left, right)
+        public Greater(IExpression left, IExpression right) : base(left, right)
         {
         }
         protected override IDSLType Operate(IDSLType left, IDSLType right)

@@ -128,7 +128,6 @@ namespace DSL.Lexer
                 case '!':
                     CurrentToken = WithExclamationToken(currentPos);
                     break;
-
                 default:
                     if (char.IsDigit(_currentChar))
                     {
