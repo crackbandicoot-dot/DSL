@@ -1,9 +1,4 @@
 ﻿using DSL.Evaluator.LenguajeTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Expressions.NumberExpressions
 {
@@ -15,7 +10,7 @@ namespace DSL.Evaluator.Expressions.NumberExpressions
 
         protected override IDSLType Operate(IDSLType operand)
         {
-            if (operand is Number o )
+            if (operand is Number o)
             {
                 return -o;
             }

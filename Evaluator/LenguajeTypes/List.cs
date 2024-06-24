@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DSL.Evaluator.LenguajeTypes
+﻿namespace DSL.Evaluator.LenguajeTypes
 {
     internal class List : IDSLType
     {
@@ -31,7 +24,19 @@ namespace DSL.Evaluator.LenguajeTypes
         }
         public bool Equals(IDSLType? other)
         {
-            throw new NotImplementedException();
+            if (other is List l)
+            {
+                if (l.Count != this.Count)
+                {
+                    return false;
+                }
+                for (int i = 0; i < l.Count; i++)
+                {
+                    if (l[i] != this[i]) return false;
+                }
+                return true;
+            }
+            return false;
         }
         public override string ToString()
         {

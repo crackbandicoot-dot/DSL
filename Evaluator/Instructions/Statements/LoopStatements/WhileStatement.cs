@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using DSL.Evaluator.Expressions;
-using DSL.Evaluator.Instructions;
-using DSL.Evaluator.Instructions.Statements;
-using DSL.Evaluator.LenguajeTypes;
+﻿using DSL.Evaluator.Expressions;
 using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 
 namespace DSL.Evaluator.Instructions.Statements.LoopStatements
@@ -23,11 +16,11 @@ namespace DSL.Evaluator.Instructions.Statements.LoopStatements
 
         public void Execute()
         {
-            
-           
-            if(condition.Evaluate() is Bool b)
+
+
+            if (condition.Evaluate() is Bool b)
             {
-                while(b)
+                while (b)
                 {
                     actionBlock.Execute();
                     b = (Bool)(condition.Evaluate());

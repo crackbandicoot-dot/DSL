@@ -1,16 +1,7 @@
-﻿using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Ignore Spelling: DSL Lenguaje
 
 namespace DSL.Evaluator.LenguajeTypes
 {
-    [TypeConverter(typeof(NumberConverter))]
     public struct Number : IDSLType
     {
         private double value;
@@ -29,7 +20,7 @@ namespace DSL.Evaluator.LenguajeTypes
         {
             this.value = value;
         }
-        
+
         public static implicit operator Number(int value)
         {
             return new Number(value);
@@ -59,25 +50,33 @@ namespace DSL.Evaluator.LenguajeTypes
         {
             return number.value;
         }
-        public static Number operator^(Number num1,Number num2)
+        public static Number operator ^(Number num1, Number num2)
         {
             return Math.Pow(num1.value, num2.value);
         }
-        public static Number operator +(Number num1,Number num2)
+        public static Number operator +(Number num1, Number num2)
         {
-            return new Number(num1.value+num2.value);  
+            return new Number(num1.value + num2.value);
+        }
+        public static bool operator ==(Number num1, Number num2)
+        {
+            return num1.Equals(num2);
+        }
+        public static bool operator !=(Number num1, Number num2)
+        {
+            return !num1.Equals(num2);
         }
         public static Number operator -(Number num)
         {
             return new Number(-num.value);
         }
-        public static Number operator -(Number num1,Number num2)
+        public static Number operator -(Number num1, Number num2)
         {
-            return new Number(num1.value-num2.value);
+            return new Number(num1.value - num2.value);
         }
-        public static Number operator %(Number num1,Number num2)
+        public static Number operator %(Number num1, Number num2)
         {
-            return num1.value%num2.value;
+            return num1.value % num2.value;
         }
         public static Number operator *(Number num1, Number num2)
         {
@@ -85,19 +84,19 @@ namespace DSL.Evaluator.LenguajeTypes
         }
         public static bool operator <(Number num1, Number num2)
         {
-            return num1.value< num2.value;
+            return num1.value < num2.value;
         }
         public static bool operator <=(Number num1, Number num2)
         {
-            return num1.value<=num2.value;
+            return num1.value <= num2.value;
         }
         public static bool operator >=(Number num1, Number num2)
         {
             return num1.value >= num2.value;
         }
-        public static bool operator >(Number num1,Number num2)
+        public static bool operator >(Number num1, Number num2)
         {
-            return num1.value>num2.value;
+            return num1.value > num2.value;
         }
         public static Number operator /(Number num1, Number num2)
         {
@@ -117,7 +116,7 @@ namespace DSL.Evaluator.LenguajeTypes
         }
 
         // Existing explicit conversion operators
-    
+
         // Override ToString() to provide a string representation of the Number
         public override string ToString()
         {
@@ -130,7 +129,7 @@ namespace DSL.Evaluator.LenguajeTypes
             {
                 if (this.IsInteger() && n.IsInteger())
                 {
-                    return (int)(this.value) == (int)(n.value);   
+                    return (int)(this.value) == (int)(n.value);
                 }
                 else
                 {
@@ -139,33 +138,10 @@ namespace DSL.Evaluator.LenguajeTypes
             }
             return false;
         }
-    }
 
-    public class NumberConverter : TypeConverter
-    {
-        // Override CanConvertFrom to return true for string-to-Number conversions
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        public override bool Equals(object obj)
         {
-            if (sourceType == typeof(string))
-            {
-                return true;
-            }
-            return base.CanConvertFrom(context, sourceType);
-        }
-
-        // Override ConvertFrom to handle the conversion from a string to a Number
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            if (value is string)
-            {
-                string stringValue = (string)value;
-                if (int.TryParse(stringValue, out int intValue))
-                {
-                    return new Number(intValue);
-                }
-            }
-            return base.ConvertFrom(context, culture, value);
+            throw new NotImplementedException();
         }
     }
-
 }

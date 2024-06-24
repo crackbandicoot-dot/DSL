@@ -1,11 +1,5 @@
 ﻿// Ignore Spelling: DSL Lexer
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace DSL.Lexer
 {
     internal struct Position

@@ -1,30 +1,28 @@
 ﻿// Ignore Spelling: lexer DSL
-using DSL.Lexer;
-using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.Expressions;
 using DSL.Evaluator.Expressions.BooleanExpressions;
+using DSL.Evaluator.Expressions.BooleanExpressions.Comparators;
+using DSL.Evaluator.Expressions.DotChainExpressions;
+using DSL.Evaluator.Expressions.ListExpression;
+using DSL.Evaluator.Expressions.NumberExpressions;
 using DSL.Evaluator.Instructions;
 using DSL.Evaluator.Instructions.Statements;
 using DSL.Evaluator.Instructions.Statements.ConditionalStatements;
 using DSL.Evaluator.Instructions.Statements.LoopStatements;
 using DSL.Evaluator.Instructions.Statements.SimpleStatements;
-using DSL.Evaluator.Expressions.NumberExpressions;
-using DSL.Evaluator.Expressions.BooleanExpressions.Comparators;
-using DSL.Evaluator.Expressions.Variables;
+using DSL.Evaluator.LenguajeTypes;
+using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.Scope;
-using static System.Formats.Asn1.AsnWriter;
-using System.ComponentModel.Design;
-
+using DSL.Lexer;
 namespace DSL.Parser
 {
     internal class Parser
     {
-        private LexerStream stream;
+        private readonly LexerStream stream;
         public IInstruction? CurrentInstruction;
         public Parser(LexerStream stream)
         {
-            this.stream= stream;
+            this.stream = stream;
         }
         #region Expression Parsing
         private IExpression Exp(Scope<IDSLType> scope)
@@ -34,17 +32,17 @@ namespace DSL.Parser
         private IExpression Or(Scope<IDSLType> scope)
         {
             IExpression left = And(scope);
-            while (stream.CurrentToken.Type==TokenType.Or)
+            while (stream.CurrentToken.Type == TokenType.Or)
             {
                 stream.Match(TokenType.Or);
-                left = new OrOperation(left,And(scope));
+                left = new OrOperation(left, And(scope));
             }
             return left;
         }
         private IExpression And(Scope<IDSLType> scope)
         {
             IExpression left = Equality(scope);
-            while (stream.CurrentToken.Type==TokenType.And)
+            while (stream.CurrentToken.Type == TokenType.And)
             {
                 stream.Match(TokenType.And);
                 left = new AndOperation(left, Equality(scope));
@@ -61,7 +59,7 @@ namespace DSL.Parser
             };
             while (allowedTokenTypes.Contains(stream.CurrentToken.Type))
             {
-                switch(stream.CurrentToken.Type)
+                switch (stream.CurrentToken.Type)
                 {
                     case TokenType.Equal:
                         stream.Match(TokenType.Equal);
@@ -87,7 +85,7 @@ namespace DSL.Parser
             };
             while (allowedTokenTypes.Contains(stream.CurrentToken.Type))
             {
-                switch(stream.CurrentToken.Type)
+                switch (stream.CurrentToken.Type)
                 {
                     case TokenType.Less:
                         stream.Match(TokenType.Less);
@@ -99,7 +97,7 @@ namespace DSL.Parser
                         break;
                     case TokenType.Greater:
                         stream.Match(TokenType.Greater);
-                        left =  new Greater(left, Term(scope));
+                        left = new Greater(left, Term(scope));
                         break;
                     case TokenType.GreaterOrEqual:
                         stream.Match(TokenType.GreaterOrEqual);
@@ -136,7 +134,7 @@ namespace DSL.Parser
         private IExpression Factor(Scope<IDSLType> scope)
         {
             IExpression left = Power(scope);
-            while (stream.CurrentToken.Type==TokenType.Star || stream.CurrentToken.Type==TokenType.Slash)
+            while (stream.CurrentToken.Type == TokenType.Star || stream.CurrentToken.Type == TokenType.Slash)
             {
                 switch (stream.CurrentToken.Type)
                 {
@@ -155,7 +153,7 @@ namespace DSL.Parser
         private IExpression Power(Scope<IDSLType> scope)
         {
             IExpression left = Unary(scope);
-            while (stream.CurrentToken.Type==TokenType.Power)
+            while (stream.CurrentToken.Type == TokenType.Power)
             {
                 stream.Match(TokenType.Power);
                 left = new PowerOperation(left, Power(scope));
@@ -169,13 +167,42 @@ namespace DSL.Parser
             {
                 case TokenType.Minus:
                     stream.Match(TokenType.Minus);
-                    return new OppositeOperator(Literal(scope));
+                    return new OppositeOperator(DotChainingPattern(scope));
                 case TokenType.Not:
                     stream.Match(TokenType.Not);
-                    return new NotOperation(Literal(scope));
+                    return new NotOperation(DotChainingPattern(scope));
                 default:
-                      return Literal(scope); 
+                    return DotChainingPattern(scope);
             }
+        }
+        private IExpression DotChainingPattern(Scope<IDSLType> scope)
+        {
+            IExpression left = Literal(scope);
+            while (stream.CurrentToken.Type == TokenType.dot)
+            {
+                stream.Match(TokenType.dot);
+                string method_or_propertyID = stream.Match(TokenType.Identifier).Value;
+                if (stream.CurrentToken.Type == TokenType.OpenParenthesis)
+                {
+                    List<IExpression> args;
+                    stream.Match(TokenType.OpenParenthesis);
+                    if (stream.CurrentToken.Type == TokenType.ClosedParenthesis)
+                    {
+                        args = new List<IExpression>();
+                    }
+                    else
+                    {
+                        args = GetListOfExpressions(scope);
+                    }
+                    stream.Match(TokenType.ClosedParenthesis);
+                    left = new FunctionCall(left, method_or_propertyID, args);
+                }
+                else
+                {
+                    left = new PropertyAccess(left, method_or_propertyID);
+                }
+            }
+            return left;
         }
         private IExpression Literal(Scope<IDSLType> scope)
         {
@@ -187,7 +214,7 @@ namespace DSL.Parser
                 case TokenType.Bool:
                     return new SimpleExpression(ParseToken(stream.Match(TokenType.Bool)));
                 case TokenType.Identifier:
-                    return new Variable(stream.Match(TokenType.Identifier).Value,scope);
+                    return new Variable(stream.Match(TokenType.Identifier).Value, scope);
                 case TokenType.OpenParenthesis:
                     stream.Match(TokenType.OpenParenthesis);
                     IExpression res = Exp(scope);
@@ -201,9 +228,18 @@ namespace DSL.Parser
         }
         private IExpression ParseLIST(Scope<IDSLType> scope)
         {
+            List<IExpression> list;
             stream.Match(TokenType.OpenSquareBracket);
-            List<IExpression> list = GetListOfExpressions(scope);
-            stream.Match(TokenType.ClosedSquareBracket);
+            if (stream.CurrentToken.Type == TokenType.ClosedSquareBracket)
+            {
+                list = new List<IExpression>();
+                stream.Match(TokenType.ClosedSquareBracket);
+            }
+            else
+            {
+                list = GetListOfExpressions(scope);
+                stream.Match(TokenType.ClosedSquareBracket);
+            }
             return new ListExpression(list);
         }
         private List<IExpression> GetListOfExpressions(Scope<IDSLType> scope)
@@ -222,24 +258,24 @@ namespace DSL.Parser
         }
         public IDSLType ParseToken(Token t)
         {
-            if (t.Type==TokenType.Number)
+            if (t.Type == TokenType.Number)
             {
-               Number res = 0;
-               if(int.TryParse(t.Value, out var n))
-               {
+                Number res = 0;
+                if (int.TryParse(t.Value, out var n))
+                {
                     res = n;
-               }
-               else if (float.TryParse(t.Value,out var f))
-               {
+                }
+                else if (float.TryParse(t.Value, out var f))
+                {
                     res = f;
-               }
-               else if(double.TryParse(t.Value,out var d))
-               {
+                }
+                else if (double.TryParse(t.Value, out var d))
+                {
                     res = d;
-               }
-               return res;
+                }
+                return res;
             }
-            else if(t.Type==TokenType.Bool)
+            else if (t.Type == TokenType.Bool)
             {
                 return (Bool)bool.Parse(t.Value);
             }
@@ -247,42 +283,26 @@ namespace DSL.Parser
             {
                 throw new NotImplementedException();
             }
-            
+
         }
         #endregion
-
         #region Instructions Parsing
-        private bool TryParseStatement(Scope<IDSLType> scope,List<IInstruction> instructions)
+        private VariableDeclarationStatement ParseVariableDeclaration(Scope<IDSLType> scope)
         {
-            switch (stream.CurrentToken.Type)
-            {
-                case TokenType.Print:
-                    instructions.Add(ParsePRINT(scope));
-                    return true;
-                case TokenType.If:
-                    instructions.Add(ParseIF(scope));
-                    return true;
-                case TokenType.While:
-                    instructions.Add(ParseWHILE(scope));
-                    return true;
-                case TokenType.For:
-                    instructions.Add(ParseFor(scope));
-                    return true;
-                default:
-                    return false;
-            }
-        }
-    
-
-        private FunctionCall ParseFunctionCall(Scope<IDSLType> scope)
-        {
+            string id = stream.Match(TokenType.Identifier).Value;
+            stream.Match(TokenType.VariableAssigmnet);
             IExpression exp = Exp(scope);
-            stream.Match(TokenType.dot);
-            string functionName = stream.Match(TokenType.Identifier).Value;
+            stream.Match(TokenType.SemiColon);
+            return new VariableDeclarationStatement(scope, id, exp);
+        }
+        private PrintStatement ParsePRINT(Scope<IDSLType> scope)
+        {
+            stream.Match(TokenType.Print);
             stream.Match(TokenType.OpenParenthesis);
-            List<IExpression> parameters = GetListOfExpressions(scope);
+            IExpression str = Exp(scope);
             stream.Match(TokenType.ClosedParenthesis);
-            return new FunctionCall(exp, functionName, parameters);
+            stream.Match(TokenType.SemiColon);
+            return new PrintStatement(str);
         }
         private ForStatement ParseFor(Scope<IDSLType> scope)
         {
@@ -295,7 +315,7 @@ namespace DSL.Parser
             stream.Match(TokenType.OpenCurlyBracket);
             InstructionBlock instructionBlock = ParseInstructionBlock(scope);
             stream.Match(TokenType.ClosedCurlyBracket);
-            return new ForStatement(forVariable, list, instructionBlock,scope);
+            return new ForStatement(forVariable, list, instructionBlock, scope);
         }
         private WhileStatement ParseWHILE(Scope<IDSLType> scope)
         {
@@ -319,27 +339,27 @@ namespace DSL.Parser
             stream.Match(TokenType.ClosedCurlyBracket);
             return new IfStatement(condition, block);
         }
-        private InstructionBlock ParseInstructionBlock(Scope<IDSLType> parentScope)
+        private InstructionBlock ParseInstructionBlock(Scope<IDSLType>? parentScope)
         {
-            List<IInstruction> instructions = new ();
-            Scope<IDSLType> scope = new(parentScope);  
-            
-            List<TokenType> tokens = new()
+            List<IInstruction> instructions = new();
+            Scope<IDSLType> scope = new(parentScope);
+            TokenType[] instructionBlockAllowedTokens = new TokenType[]
             {
                 TokenType.If,
                 TokenType.While,
                 TokenType.Print,
                 TokenType.Identifier,
-                TokenType.For
+                TokenType.For,
+                TokenType.Number,
+                TokenType.String,
+                TokenType.OpenSquareBracket,
+                TokenType.Bool,
+                TokenType.OpenParenthesis,
+                TokenType.Not,
+                TokenType.Minus
             };
-
-            while (tokens.Contains(stream.CurrentToken.Type))
+            while (instructionBlockAllowedTokens.Contains(stream.CurrentToken.Type))
             {
-                if (TryParseStatement(scope, instructions)) ;
-                else if (TryParseAsignation(scope, instructions)) ;
-                else if (TryParseFunctionCall(scope, instructions)) ;
-                else if (TryParseDecrementIncrementOperators(scope, instructions)) ;
-                else throw new Exception("Just statements, calls, asigments, increasing and decrasing operators are valid instructions");
                 switch (stream.CurrentToken.Type)
                 {
                     case TokenType.Print:
@@ -353,59 +373,40 @@ namespace DSL.Parser
                         break;
                     case TokenType.For:
                         instructions.Add(ParseFor(scope));
-                        break;  
+                        break;
                     case TokenType.Identifier:
-                        instructions.Add(ParseWITHIDINSTRUCTION(scope));
+                        switch (stream.LookNextToken().Type)
+                        {
+                            case TokenType.VariableAssigmnet:
+                                instructions.Add(ParseVariableDeclaration(scope));
+                                break;
+                            case TokenType.dot:
+                                instructions.Add(ParseFunctionCall(scope));
+                                break;
+                            default:
+                                break;
+                        }
                         break;
-                    case TokenType.EOF:
-                        instructions.Add(new EndInstruction());
-                        break;
+                    default:
+                        throw new Exception("Just statements, calls, asigments, increasing and decrasing operators are valid instructions");
                 }
             }
             return new InstructionBlock(instructions, scope);
         }
-
-        private bool TryParseDecrementIncrementOperators(Scope<IDSLType> scope, List<IInstruction> instructions)
+        private FunctionCall ParseFunctionCall(Scope<IDSLType> scope)
         {
-            throw new NotImplementedException();
-        }
-
-        private bool TryParseFunctionCall(Scope<IDSLType> scope, List<IInstruction> instructions)
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool TryParseAsignation(Scope<IDSLType> scope, List<IInstruction> instructions)
-        {
-            throw new NotImplementedException();
-        }
-
-        private VariableDeclarationStatement ParseVariableDeclaration(Scope<IDSLType> scope) 
-        {
-            string id = stream.Match(TokenType.Identifier).Value;
-            stream.Match(TokenType.VariableAssigmnet);
             IExpression exp = Exp(scope);
-            stream.Match(TokenType.SemiColon);
-            return new VariableDeclarationStatement(scope, id,exp);
+            if (exp is FunctionCall fc)
+            {
+                stream.Match(TokenType.SemiColon);
+                return fc;
+            }
+            throw new Exception($"The expression{exp} is not a valid instruction");
         }
-        private IInstruction ParseWITHIDINSTRUCTION(Scope<IDSLType> scopeVariables)
-        {
-            return ParseVariableDeclaration(scopeVariables);
-        }
-        private PrintStatement ParsePRINT(Scope<IDSLType> scope)
-        {
-            stream.Match(TokenType.Print);
-            stream.Match(TokenType.OpenParenthesis);
-            IExpression str = Exp(scope);
-            stream.Match(TokenType.ClosedParenthesis);
-            stream.Match(TokenType.SemiColon);
-            return new PrintStatement(str);
-        }
-        
         #endregion
         public void NextInstruction()
         {
-           CurrentInstruction =  ParseInstructionBlock(null);
+            CurrentInstruction = ParseInstructionBlock(null);
         }
     }
 }

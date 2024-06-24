@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSL.Evaluator.Expressions;
-using DSL.Evaluator.Instructions;
-using DSL.Evaluator.Instructions.Statements;
+﻿using DSL.Evaluator.Expressions;
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 
@@ -13,7 +6,7 @@ namespace DSL.Evaluator.Instructions.Statements.ConditionalStatements
 {
     internal class IfStatement : IInstruction
     {
-        
+
         private readonly InstructionBlock instructionBlock;
         private readonly IExpression condition;
 
@@ -21,7 +14,7 @@ namespace DSL.Evaluator.Instructions.Statements.ConditionalStatements
         {
             this.condition = condition;
             this.instructionBlock = instructionBlock;
-            
+
         }
 
         public void Execute()
@@ -31,14 +24,14 @@ namespace DSL.Evaluator.Instructions.Statements.ConditionalStatements
             {
                 if (b)
                 {
-                    instructionBlock.Execute();   
+                    instructionBlock.Execute();
                 }
             }
             else
             {
                 throw new Exception($"Cannot convert {value} to bool");
             }
-            
+
         }
     }
 }

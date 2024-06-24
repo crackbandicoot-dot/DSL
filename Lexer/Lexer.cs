@@ -1,13 +1,6 @@
 ﻿// Ignore Spelling: Interpeter DSL Lexer
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Security;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DSL.Lexer
 {

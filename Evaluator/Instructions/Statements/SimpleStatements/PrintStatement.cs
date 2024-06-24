@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DSL.Evaluator.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DSL.Evaluator.Expressions;
 
 namespace DSL.Evaluator.Instructions.Statements.SimpleStatements
 {
-    internal class PrintStatement :IInstruction
+    internal class PrintStatement : IInstruction
     {
         private readonly IExpression exp;
 

@@ -1,12 +1,6 @@
 ﻿using DSL.Evaluator.Expressions;
-using DSL.Evaluator.Instructions.Statements.SimpleStatements;
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.Scope;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Instructions.Statements.LoopStatements
 {
@@ -17,7 +11,7 @@ namespace DSL.Evaluator.Instructions.Statements.LoopStatements
         private readonly InstructionBlock instructions;
         private readonly Scope<IDSLType> scope;
 
-        public ForStatement(string variableIdentifier,IExpression list,InstructionBlock instructions,Scope<IDSLType> scope)
+        public ForStatement(string variableIdentifier, IExpression list, InstructionBlock instructions, Scope<IDSLType> scope)
         {
             this.variableIdentifier = variableIdentifier;
             this.list = list;

@@ -1,9 +1,6 @@
-﻿using DSL.Evaluator.LenguajeTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Ignore Spelling: DSL
+
+using DSL.Evaluator.LenguajeTypes;
 
 namespace DSL.Evaluator.Expressions
 {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSL.Evaluator.Instructions;
-using DSL.Evaluator.LenguajeTypes;
+﻿using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.Scope;
 
 namespace DSL.Evaluator.Instructions.Statements

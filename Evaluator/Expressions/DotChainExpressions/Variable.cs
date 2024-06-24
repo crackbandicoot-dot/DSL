@@ -1,21 +1,18 @@
-﻿using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.Scope;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Ignore Spelling: DSL
 
-namespace DSL.Evaluator.Expressions.Variables
+using DSL.Evaluator.LenguajeTypes;
+using DSL.Evaluator.Scope;
+
+namespace DSL.Evaluator.Expressions.DotChainExpressions
 {
     internal class Variable : IExpression
     {
         private readonly Scope<IDSLType> scope;
         private readonly string id;
 
-        public Variable(string id,Scope<IDSLType> scope) 
+        public Variable(string id, Scope<IDSLType> scope)
         {
-            this.id= id;
+            this.id = id;
             this.scope = scope;
         }
         public IDSLType Evaluate()

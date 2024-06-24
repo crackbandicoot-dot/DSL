@@ -2,7 +2,7 @@
 
 namespace DSL.Evaluator.Expressions
 {
-    internal abstract class UnaryExpression: IExpression
+    internal abstract class UnaryExpression : IExpression
     {
         private readonly IExpression operand;
 
@@ -10,8 +10,7 @@ namespace DSL.Evaluator.Expressions
         {
             this.operand = operand;
         }
-
-        public  IDSLType Evaluate() => Operate(operand.Evaluate());
+        public IDSLType Evaluate() => Operate(operand.Evaluate());
         protected abstract IDSLType Operate(IDSLType operand);
     }
 

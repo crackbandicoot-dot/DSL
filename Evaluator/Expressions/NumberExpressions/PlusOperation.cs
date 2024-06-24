@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
+﻿using DSL.Evaluator.LenguajeTypes;
 namespace DSL.Evaluator.Expressions.NumberExpressions
 {
     internal class PlusOperation : BinaryExpression
     {
         public PlusOperation(IExpression left, IExpression right) : base(left, right)
         { }
-     
+
 
         protected override IDSLType Operate(IDSLType left, IDSLType right)
         {
