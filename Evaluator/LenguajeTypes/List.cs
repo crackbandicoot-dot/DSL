@@ -3,13 +3,16 @@
     internal class List : IDSLType
     {
         private List<IDSLType> list = new();
-
         public Number Count => list.Count;
-
         public bool IsReadOnly => false;
-
-        public IDSLType this[int index] { get => list[index]; set => list[index] = value; }
-
+        public IDSLType Get(Number index)
+        {
+            return list[index.ToInteger()];
+        }
+        public void Set(Number index,IDSLType value)
+        {
+            list[index.ToInteger()] = value;
+        }
         public void Add(IDSLType item)
         {
             list.Add(item);
@@ -32,7 +35,7 @@
                 }
                 for (int i = 0; i < l.Count; i++)
                 {
-                    if (l[i] != this[i]) return false;
+                    if (l.Get(i) != Get(i)) return false;
                 }
                 return true;
             }

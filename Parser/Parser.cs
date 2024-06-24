@@ -178,28 +178,56 @@ namespace DSL.Parser
         private IExpression DotChainingPattern(Scope<IDSLType> scope)
         {
             IExpression left = Literal(scope);
-            while (stream.CurrentToken.Type == TokenType.dot)
+            while (stream.CurrentToken.Type == TokenType.dot || stream.CurrentToken.Type==TokenType.OpenSquareBracket)
             {
-                stream.Match(TokenType.dot);
-                string method_or_propertyID = stream.Match(TokenType.Identifier).Value;
-                if (stream.CurrentToken.Type == TokenType.OpenParenthesis)
+                if (stream.CurrentToken.Type==TokenType.OpenSquareBracket)
                 {
-                    List<IExpression> args;
-                    stream.Match(TokenType.OpenParenthesis);
-                    if (stream.CurrentToken.Type == TokenType.ClosedParenthesis)
+                    stream.Match(TokenType.OpenSquareBracket);
+                    IExpression index= Exp(scope);
+                    stream.Match(TokenType.ClosedSquareBracket);
+                    if (stream.CurrentToken.Type==TokenType.VariableAssigmnet)
                     {
-                        args = new List<IExpression>();
+                        stream.Match(TokenType.VariableAssigmnet);
+                        IExpression value = Exp(scope);
+                        left = new FunctionCall(left,"Set",new List<IExpression> {index,value});
                     }
                     else
                     {
-                        args = GetListOfExpressions(scope);
+                        left = new FunctionCall(left, "Get", new List<IExpression> {index});
                     }
-                    stream.Match(TokenType.ClosedParenthesis);
-                    left = new FunctionCall(left, method_or_propertyID, args);
                 }
                 else
                 {
-                    left = new PropertyAccess(left, method_or_propertyID);
+                    stream.Match(TokenType.dot);
+                    string method_or_propertyID = stream.Match(TokenType.Identifier).Value;
+                    if (stream.CurrentToken.Type == TokenType.OpenParenthesis)
+                    {
+                        List<IExpression> args;
+                        stream.Match(TokenType.OpenParenthesis);
+                        if (stream.CurrentToken.Type == TokenType.ClosedParenthesis)
+                        {
+                            args = new List<IExpression>();
+                        }
+                        else
+                        {
+                            args = GetListOfExpressions(scope);
+                        }
+                        stream.Match(TokenType.ClosedParenthesis);
+                        left = new FunctionCall(left, method_or_propertyID, args);
+                    }
+                    else
+                    {
+                        if (stream.CurrentToken.Type==TokenType.VariableAssigmnet)
+                        {
+                            stream.Match(TokenType.VariableAssigmnet);
+                            left = new PropertySetter(left, method_or_propertyID, Exp(scope));
+                        }
+                        else
+                        {
+                            left = new PropertyGetter(left, method_or_propertyID);
+                        }
+                        
+                    }
                 }
             }
             return left;
@@ -377,11 +405,17 @@ namespace DSL.Parser
                     case TokenType.Identifier:
                         switch (stream.LookNextToken().Type)
                         {
+
                             case TokenType.VariableAssigmnet:
                                 instructions.Add(ParseVariableDeclaration(scope));
                                 break;
-                            case TokenType.dot:
-                                instructions.Add(ParseFunctionCall(scope));
+                            case TokenType.dot or TokenType.OpenSquareBracket:
+                                IExpression exp = Exp(scope);
+                                if (exp is IInstruction I)
+                                {
+                                    instructions.Add(I);
+                                    stream.Match(TokenType.SemiColon);
+                                }
                                 break;
                             default:
                                 break;
@@ -393,16 +427,7 @@ namespace DSL.Parser
             }
             return new InstructionBlock(instructions, scope);
         }
-        private FunctionCall ParseFunctionCall(Scope<IDSLType> scope)
-        {
-            IExpression exp = Exp(scope);
-            if (exp is FunctionCall fc)
-            {
-                stream.Match(TokenType.SemiColon);
-                return fc;
-            }
-            throw new Exception($"The expression{exp} is not a valid instruction");
-        }
+        
         #endregion
         public void NextInstruction()
         {

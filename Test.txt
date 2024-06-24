@@ -1,6 +1,20 @@
-list = [1,2,3];
-for(x in list)
+list = [5,2,7,120];
+i = 0;
+while(i<list.Count)
 {
-	list.Add(x);
+   j = i;
+   minPos = i;
+   while(j<list.Count)
+   {
+	  if(list[minPos]>list[j])
+	  {
+		minPos = j;
+	  }
+	  j = j+1;
+   }
+   x = list[i];
+   list[i] = list[minPos];
+   list[minPos] = x;
+   i = i+1;
 }
 print(list);

@@ -110,9 +110,17 @@ namespace DSL.Evaluator.LenguajeTypes
         }
 
         // Helper method to check if the stored value is an integer
-        private bool IsInteger()
+        public bool IsInteger()
         {
             return value == (int)value;
+        }
+        public int ToInteger()
+        {
+            if (IsInteger())
+            {
+                return (int)value;
+            }
+            throw new Exception("The current number is not an integer");
         }
 
         // Existing explicit conversion operators

@@ -26,7 +26,7 @@ namespace DSL.Evaluator.Instructions.Statements.LoopStatements
                 Number length = l.Count;
                 for (int i = 0; i < length; i++)
                 {
-                    instructions.ScopeVariables.Declare(variableIdentifier, l[i]);
+                    instructions.ScopeVariables.Declare(variableIdentifier, l.Get(i));
                     instructions.Execute();
                 }
             }
