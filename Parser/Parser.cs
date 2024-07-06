@@ -1,437 +1,334 @@
 ﻿// Ignore Spelling: lexer DSL
 using DSL.Evaluator.Expressions;
-using DSL.Evaluator.Expressions.BooleanExpressions;
-using DSL.Evaluator.Expressions.BooleanExpressions.Comparators;
-using DSL.Evaluator.Expressions.DotChainExpressions;
-using DSL.Evaluator.Expressions.ListExpression;
-using DSL.Evaluator.Expressions.NumberExpressions;
-using DSL.Evaluator.Instructions;
-using DSL.Evaluator.Instructions.Statements;
-using DSL.Evaluator.Instructions.Statements.ConditionalStatements;
-using DSL.Evaluator.Instructions.Statements.LoopStatements;
-using DSL.Evaluator.Instructions.Statements.SimpleStatements;
+using DSL.Evaluator.Instructions.ObjectDeclaration;
 using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.Scope;
 using DSL.Lexer;
+
+
 namespace DSL.Parser
 {
-    internal class Parser
+
+    internal partial class Parser
     {
-        private readonly LexerStream stream;
-        public IInstruction? CurrentInstruction;
-        public Parser(LexerStream stream)
+        //TODO, Arreglar las cosas para que funcionen en cualquier orden
+        #region CardDeclaration
+        private CardDeclaration ParseCardInfo(Context context)
         {
-            this.stream = stream;
+            stream.Eat(TokenType.Card);
+            stream.Eat(TokenType.OpenCurlyBracket);
+            CardDeclaration cardDeclaration = ParseCardBody(context);
+            stream.Eat(TokenType.ClosedCurlyBracket);
+            return cardDeclaration;
         }
-        #region Expression Parsing
-        private IExpression Exp(Scope<IDSLType> scope)
+        private CardDeclaration ParseCardBody(Context context)
         {
-            return Or(scope);
-        }
-        private IExpression Or(Scope<IDSLType> scope)
-        {
-            IExpression left = And(scope);
-            while (stream.CurrentToken.Type == TokenType.Or)
+            List<TokenType> takenKeywords = new();
+            CardDeclaration cardDeclaration = new(context);
+            SetCardProperty(cardDeclaration, takenKeywords);
+            while (stream.Match(TokenType.Comma))
             {
-                stream.Match(TokenType.Or);
-                left = new OrOperation(left, And(scope));
+                stream.Eat(TokenType.Comma);
+                SetCardProperty(cardDeclaration, takenKeywords);
             }
-            return left;
+            return cardDeclaration;
         }
-        private IExpression And(Scope<IDSLType> scope)
+        private string[] ParseRange()
         {
-            IExpression left = Equality(scope);
-            while (stream.CurrentToken.Type == TokenType.And)
+            //TODO tal vez checkar la semantica
+            stream.Eat(TokenType.Range);
+            stream.Eat(TokenType.PropertyAssigment);
+            stream.Eat(TokenType.OpenSquareBracket);
+            List<string> l = new();
+            if (stream.Match(TokenType.ClosedSquareBracket))
             {
-                stream.Match(TokenType.And);
-                left = new AndOperation(left, Equality(scope));
+                stream.Eat(TokenType.ClosedSquareBracket);
+                return l.ToArray();
             }
-            return left;
-        }
-        private IExpression Equality(Scope<IDSLType> scope)
-        {
-            IExpression left = Compairson(scope);
-            TokenType[] allowedTokenTypes = new TokenType[]
+            else
             {
-                TokenType.Equal,
-                TokenType.NotEqual,
-            };
-            while (allowedTokenTypes.Contains(stream.CurrentToken.Type))
+                l.Add(ParseString());
+                while (stream.Match(TokenType.Comma))
+                {
+                    stream.Eat(TokenType.Comma);
+                    l.Add(ParseString());
+                }
+                stream.Eat(TokenType.ClosedSquareBracket);
+                return l.ToArray();
+            }
+        }
+        private double ParsePower()
+        {
+            stream.Eat(TokenType.Power);
+            stream.Eat(TokenType.PropertyAssigment);
+            return double.Parse(stream.Eat(TokenType.Number).Value);
+        }
+        private string ParseFaction()
+        {
+            stream.Eat(TokenType.Faction);
+            stream.Eat(TokenType.PropertyAssigment);
+            return ParseString();
+        }
+        private string ParseType()
+        {
+            stream.Eat(TokenType.Type);
+            stream.Eat(TokenType.PropertyAssigment);
+            return stream.Eat(TokenType.Type).Value;
+        }
+        private void SetCardProperty(CardDeclaration cardDeclaration, List<TokenType> takenKeywords)
+        {
+            if (takenKeywords.Contains(stream.CurrentToken.Type))
+            {
+                throw new Exception($"In {stream.CurrentToken.Pos} property {stream.CurrentToken.Type} has been already declared");
+            }
+            else
             {
                 switch (stream.CurrentToken.Type)
                 {
-                    case TokenType.Equal:
-                        stream.Match(TokenType.Equal);
-                        left = new Equal(left, Compairson(scope));
+                    case TokenType.Name:
+                        cardDeclaration.Name = ParseName();
+                        takenKeywords.Add(stream.CurrentToken.Type);
                         break;
-                    case TokenType.NotEqual:
-                        stream.Match(TokenType.NotEqual);
-                        left = new NotEqual(left, Compairson(scope));
+                    case TokenType.Type:
+                        cardDeclaration.Type = ParseType();
+                        takenKeywords.Add(stream.CurrentToken.Type);
+                        break;
+                    case TokenType.Faction:
+                        cardDeclaration.Faction = ParseFaction();
+                        takenKeywords.Add(stream.CurrentToken.Type);
+                        break;
+                    case TokenType.Power:
+                        cardDeclaration.Power = ParsePower();
+                        takenKeywords.Add(stream.CurrentToken.Type);
+                        break;
+                    case TokenType.Range:
+                        cardDeclaration.Range = ParseRange();
+                        takenKeywords.Add(stream.CurrentToken.Type);
+                        break;
+                    case TokenType.OnActivation:
+                        cardDeclaration.OnActivation = ParseOnActivation();
+                        takenKeywords.Add(stream.CurrentToken.Type);
                         break;
                 }
             }
-            return left;
         }
-        private IExpression Compairson(Scope<IDSLType> scope)
+       
+        //OnActivation
+        private Effect[] ParseOnActivation()
         {
-            IExpression left = Term(scope);
-            TokenType[] allowedTokenTypes = new TokenType[]
+            List<Effect> r = new();
+            stream.Eat(TokenType.OpenSquareBracket);
+            if (stream.Match(TokenType.ClosedSquareBracket))
             {
-                TokenType.Less,
-                TokenType.Greater,
-                TokenType.LessOrEqual,
-                TokenType.GreaterOrEqual,
-            };
-            while (allowedTokenTypes.Contains(stream.CurrentToken.Type))
+                stream.Eat(TokenType.ClosedSquareBracket);
+            }
+            else
+            {
+                r.Add(ParseEffect());
+                while (stream.Match(TokenType.Comma))
+                {
+                    r.Add(ParseEffect());
+                }
+            }
+            return r.ToArray();
+        }
+        private Effect ParseEffect()
+        {
+            Effect e = new();
+            stream.Eat(TokenType.OpenCurlyBracket);
+            e.EffectInstanciation = ParseEffectInstanciation();
+            stream.Eat(TokenType.Comma);
+            e.Selector = ParseSelector();
+            stream.Eat(TokenType.Comma);
+            if (stream.Match(TokenType.PostAction))
+            {
+                e.PostAction = ParseEffect();
+            }
+            else
+            {
+                e.PostAction = null;
+            }
+            stream.Eat(TokenType.ClosedCurlyBracket);
+            throw new NotImplementedException();
+        }
+        private EffectInstantation ParseEffectInstanciation()
+        {
+            EffectInstantation ei = new();
+            stream.Eat(TokenType.EffectInstanciation);
+            stream.Eat(TokenType.PropertyAssigment);
+            stream.Eat(TokenType.OpenCurlyBracket);
+            ei.Name = ParseName();
+            while (stream.Match(TokenType.Comma))
+            {
+                ParseParmetrsAsignation(ei.Parmeters);
+            }
+            stream.Eat(TokenType.ClosedCurlyBracket);
+            return ei;
+        }
+        private void ParseParmetrsAsignation(Dictionary<string, object> parmeters)
+        {
+            string id = stream.Eat(TokenType.Identifier).Value;
+            stream.Eat(TokenType.PropertyAssigment);
+            object value = ParseToken(stream.Eat(TokenType.Bool, TokenType.Number, TokenType.String));
+            parmeters.Add(id, value);
+        }
+        private Selector ParseSelector()
+        {
+            Selector selector = new();
+            stream.Eat(TokenType.Selector);
+            stream.Eat(TokenType.PropertyAssigment);
+            stream.Eat(TokenType.OpenCurlyBracket);
+            ParseSelectorProperty(selector);
+            while (stream.Match(TokenType.Comma))
+            {
+                ParseSelectorProperty(selector);
+            }
+            stream.Eat(TokenType.ClosedCurlyBracket);
+            return selector;
+        }
+        private void ParseSelectorProperty(Selector selector)
+        {
+            switch (stream.CurrentToken.Type)
+            {
+                case TokenType.Source:
+                    selector.Source = ParseSoure();
+                    break;
+                case TokenType.Single:
+                    ParseSingle();
+                    selector.Single = ParseSingle();
+                    break;
+                case TokenType.Predicate:
+                    ParsePredicate();
+                    selector.Predicate = ParsePredicate();
+                    break;
+            }
+        }
+        private string ParseSoure()
+        {
+            stream.Eat(TokenType.Source);
+            stream.Eat(TokenType.PropertyAssigment);
+            return stream.Eat(TokenType.String).Value;
+        }
+        private bool ParseSingle()
+        {
+            stream.Eat(TokenType.Single);
+            stream.Eat(TokenType.PropertyAssigment);
+            return bool.Parse(stream.Eat(TokenType.Bool).Value);
+        }
+        private IExpression ParsePredicate()
+        {
+            stream.Eat(TokenType.Predicate);
+            stream.Eat(TokenType.PropertyAssigment);
+            return Exp(new Scope<IDSLType>(null));
+        }
+        #endregion
+        #region EffectDeclaration
+        private EffectDeclaration ParseEffectInfo(Context context)
+        {
+            stream.Eat(TokenType.Effect);
+            stream.Eat(TokenType.OpenCurlyBracket);
+            EffectDeclaration effectInfo = ParseEffectBody(context);
+            stream.Eat(TokenType.ClosedCurlyBracket);
+            return effectInfo;
+        }
+        private EffectDeclaration ParseEffectBody(Context context)
+        {
+            List<TokenType> takenKeywords = new();
+            EffectDeclaration effectInfo = new(context);
+            SetEffectProperty(effectInfo, takenKeywords);
+            while (stream.Match(TokenType.Comma))
+            {
+                stream.Eat(TokenType.Comma);
+                SetEffectProperty(effectInfo, takenKeywords);
+            }
+            return effectInfo;
+        }
+        public void SetEffectProperty(EffectDeclaration effectInfo, List<TokenType> takenKeywords)
+        {
+            if (takenKeywords.Contains(stream.CurrentToken.Type))
+            {
+                throw new Exception($"In {stream.CurrentToken.Pos} property {stream.CurrentToken.Type} has been already declared");
+            }
+            else
             {
                 switch (stream.CurrentToken.Type)
                 {
-                    case TokenType.Less:
-                        stream.Match(TokenType.Less);
-                        left = new Less(left, Term(scope));
+                    case TokenType.Name:
+                        effectInfo.Name = ParseName();
                         break;
-                    case TokenType.LessOrEqual:
-                        stream.Match(TokenType.LessOrEqual);
-                        left = new LessOrEqual(left, Term(scope));
+                    case TokenType.Action:
+                        effectInfo.Action = ParseAction();
                         break;
-                    case TokenType.Greater:
-                        stream.Match(TokenType.Greater);
-                        left = new Greater(left, Term(scope));
-                        break;
-                    case TokenType.GreaterOrEqual:
-                        stream.Match(TokenType.GreaterOrEqual);
-                        left = new GreaterOrEqual(left, Term(scope));
+                    case TokenType.Params:
+                        effectInfo.Params = ParseParams();
                         break;
                 }
             }
-            return left;
         }
-        private IExpression Term(Scope<IDSLType> scope)
+        private Dictionary<string, string> ParseParams()
         {
-            IExpression left = Factor(scope);
-            TokenType[] allowedTokenTypes = new TokenType[]
+            stream.Eat(TokenType.Params);
+            stream.Eat(TokenType.OpenCurlyBracket);
+            Dictionary<string, string> parameters = new();
+            ParseParam(parameters);
+            while (stream.Match(TokenType.Comma))
             {
-                TokenType.Sum,
-                TokenType.Minus,
-            };
-            while (allowedTokenTypes.Contains(stream.CurrentToken.Type))
+                stream.Eat(TokenType.Comma);
+                ParseParam(parameters);
+            }
+            stream.Eat(TokenType.ClosedCurlyBracket);
+            return parameters;
+        }
+        private void ParseParam(Dictionary<string, string> parameters)
+        {
+            string id = stream.Eat(TokenType.Identifier).Value;
+            stream.Eat(TokenType.PropertyAssigment);
+            string type = stream.Eat(TokenType.BooleanType, TokenType.NumberType, TokenType.StringType).Value;
+            parameters.Add(id, type);
+        }
+        private Evaluator.LenguajeTypes.Action ParseAction()
+        {
+            stream.Eat(TokenType.Action);
+            stream.Eat(TokenType.PropertyAssigment);
+            stream.Eat(TokenType.OpenParenthesis);
+            string firstId = stream.Eat(TokenType.Identifier).Value;
+            stream.Eat(TokenType.Comma);
+            string secondId = stream.Eat(TokenType.Identifier).Value;
+            stream.Eat(TokenType.ClosedParenthesis);
+            stream.Eat(TokenType.FunctionAssigment);
+            stream.Eat(TokenType.OpenCurlyBracket);
+            var instructionBlock = ParseInstructionBlock(null);
+            stream.Eat(TokenType.ClosedCurlyBracket);
+            return new Evaluator.LenguajeTypes.Action(new string[] { firstId, secondId }, instructionBlock);
+        }
+        private string ParseName()
+        {
+            stream.Eat(TokenType.Name);
+            stream.Eat(TokenType.PropertyAssigment);
+            return ParseString();
+        }
+        private string ParseString() => stream.Eat(TokenType.String).Value;
+        # endregion
+        public void ParseAST()
+        {
+            Context context = new();
+            while (stream.Match(TokenType.Effect,TokenType.Card))
             {
-                switch (stream.CurrentToken.Type)
+                if (stream.Match(TokenType.Effect))
                 {
-                    case TokenType.Sum:
-                        stream.Match(TokenType.Sum);
-                        left = new PlusOperation(left, Factor(scope));
-                        break;
-                    case TokenType.Minus:
-                        stream.Match(TokenType.Minus);
-                        left = new MinusOperation(left, Factor(scope));
-                        break;
-                }
-            }
-            return left;
-        }
-        private IExpression Factor(Scope<IDSLType> scope)
-        {
-            IExpression left = Power(scope);
-            while (stream.CurrentToken.Type == TokenType.Star || stream.CurrentToken.Type == TokenType.Slash)
-            {
-                switch (stream.CurrentToken.Type)
-                {
-                    case TokenType.Star:
-                        stream.Match(TokenType.Star);
-                        left = new MultiplicationOperation(left, Power(scope));
-                        break;
-                    case TokenType.Slash:
-                        stream.Match(TokenType.Slash);
-                        left = new DivideOperation(left, Power(scope));
-                        break;
-                }
-            }
-            return left;
-        }
-        private IExpression Power(Scope<IDSLType> scope)
-        {
-            IExpression left = Unary(scope);
-            while (stream.CurrentToken.Type == TokenType.Power)
-            {
-                stream.Match(TokenType.Power);
-                left = new PowerOperation(left, Power(scope));
-            }
-            return left;
-        }
-        private IExpression Unary(Scope<IDSLType> scope)
-        {
-            Token current = stream.CurrentToken;
-            switch (current.Type)
-            {
-                case TokenType.Minus:
-                    stream.Match(TokenType.Minus);
-                    return new OppositeOperator(DotChainingPattern(scope));
-                case TokenType.Not:
-                    stream.Match(TokenType.Not);
-                    return new NotOperation(DotChainingPattern(scope));
-                default:
-                    return DotChainingPattern(scope);
-            }
-        }
-        private IExpression DotChainingPattern(Scope<IDSLType> scope)
-        {
-            IExpression left = Literal(scope);
-            while (stream.CurrentToken.Type == TokenType.dot || stream.CurrentToken.Type==TokenType.OpenSquareBracket)
-            {
-                if (stream.CurrentToken.Type==TokenType.OpenSquareBracket)
-                {
-                    stream.Match(TokenType.OpenSquareBracket);
-                    IExpression index= Exp(scope);
-                    stream.Match(TokenType.ClosedSquareBracket);
-                    if (stream.CurrentToken.Type==TokenType.VariableAssigmnet)
-                    {
-                        stream.Match(TokenType.VariableAssigmnet);
-                        IExpression value = Exp(scope);
-                        left = new FunctionCall(left,"Set",new List<IExpression> {index,value});
-                    }
-                    else
-                    {
-                        left = new FunctionCall(left, "Get", new List<IExpression> {index});
-                    }
+                    ParseEffectInfo(context);
                 }
                 else
                 {
-                    stream.Match(TokenType.dot);
-                    string method_or_propertyID = stream.Match(TokenType.Identifier).Value;
-                    if (stream.CurrentToken.Type == TokenType.OpenParenthesis)
-                    {
-                        List<IExpression> args;
-                        stream.Match(TokenType.OpenParenthesis);
-                        if (stream.CurrentToken.Type == TokenType.ClosedParenthesis)
-                        {
-                            args = new List<IExpression>();
-                        }
-                        else
-                        {
-                            args = GetListOfExpressions(scope);
-                        }
-                        stream.Match(TokenType.ClosedParenthesis);
-                        left = new FunctionCall(left, method_or_propertyID, args);
-                    }
-                    else
-                    {
-                        if (stream.CurrentToken.Type==TokenType.VariableAssigmnet)
-                        {
-                            stream.Match(TokenType.VariableAssigmnet);
-                            left = new PropertySetter(left, method_or_propertyID, Exp(scope));
-                        }
-                        else
-                        {
-                            left = new PropertyGetter(left, method_or_propertyID);
-                        }
-                        
-                    }
+                    ParseCardInfo(context);
                 }
             }
-            return left;
         }
-        private IExpression Literal(Scope<IDSLType> scope)
-        {
-            Token current = stream.CurrentToken;
-            switch (current.Type)
-            {
-                case TokenType.Number:
-                    return new SimpleExpression(ParseToken(stream.Match(TokenType.Number)));
-                case TokenType.Bool:
-                    return new SimpleExpression(ParseToken(stream.Match(TokenType.Bool)));
-                case TokenType.Identifier:
-                    return new Variable(stream.Match(TokenType.Identifier).Value, scope);
-                case TokenType.OpenParenthesis:
-                    stream.Match(TokenType.OpenParenthesis);
-                    IExpression res = Exp(scope);
-                    stream.Match(TokenType.ClosedParenthesis);
-                    return res;
-                case TokenType.OpenSquareBracket:
-                    return ParseLIST(scope);
-                default:
-                    throw new Exception("Expression expceted");
-            }
-        }
-        private IExpression ParseLIST(Scope<IDSLType> scope)
-        {
-            List<IExpression> list;
-            stream.Match(TokenType.OpenSquareBracket);
-            if (stream.CurrentToken.Type == TokenType.ClosedSquareBracket)
-            {
-                list = new List<IExpression>();
-                stream.Match(TokenType.ClosedSquareBracket);
-            }
-            else
-            {
-                list = GetListOfExpressions(scope);
-                stream.Match(TokenType.ClosedSquareBracket);
-            }
-            return new ListExpression(list);
-        }
-        private List<IExpression> GetListOfExpressions(Scope<IDSLType> scope)
-        {
-            List<IExpression> list = new()
-            {
-                Exp(scope)
-            };
-            while (stream.CurrentToken.Type == TokenType.Comma)
-            {
-                stream.Match(TokenType.Comma);
-                list.Add(Exp(scope));
-            }
-
-            return list;
-        }
-        public IDSLType ParseToken(Token t)
-        {
-            if (t.Type == TokenType.Number)
-            {
-                Number res = 0;
-                if (int.TryParse(t.Value, out var n))
-                {
-                    res = n;
-                }
-                else if (float.TryParse(t.Value, out var f))
-                {
-                    res = f;
-                }
-                else if (double.TryParse(t.Value, out var d))
-                {
-                    res = d;
-                }
-                return res;
-            }
-            else if (t.Type == TokenType.Bool)
-            {
-                return (Bool)bool.Parse(t.Value);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-
-        }
-        #endregion
-        #region Instructions Parsing
-        private VariableDeclarationStatement ParseVariableDeclaration(Scope<IDSLType> scope)
-        {
-            string id = stream.Match(TokenType.Identifier).Value;
-            stream.Match(TokenType.VariableAssigmnet);
-            IExpression exp = Exp(scope);
-            stream.Match(TokenType.SemiColon);
-            return new VariableDeclarationStatement(scope, id, exp);
-        }
-        private PrintStatement ParsePRINT(Scope<IDSLType> scope)
-        {
-            stream.Match(TokenType.Print);
-            stream.Match(TokenType.OpenParenthesis);
-            IExpression str = Exp(scope);
-            stream.Match(TokenType.ClosedParenthesis);
-            stream.Match(TokenType.SemiColon);
-            return new PrintStatement(str);
-        }
-        private ForStatement ParseFor(Scope<IDSLType> scope)
-        {
-            stream.Match(TokenType.For);
-            stream.Match(TokenType.OpenParenthesis);
-            string forVariable = stream.Match(TokenType.Identifier).Value;
-            stream.Match(TokenType.In);
-            IExpression list = Exp(scope);
-            stream.Match(TokenType.ClosedParenthesis);
-            stream.Match(TokenType.OpenCurlyBracket);
-            InstructionBlock instructionBlock = ParseInstructionBlock(scope);
-            stream.Match(TokenType.ClosedCurlyBracket);
-            return new ForStatement(forVariable, list, instructionBlock, scope);
-        }
-        private WhileStatement ParseWHILE(Scope<IDSLType> scope)
-        {
-            stream.Match(TokenType.While);
-            stream.Match(TokenType.OpenParenthesis);
-            IExpression condition = Exp(scope);
-            stream.Match(TokenType.ClosedParenthesis);
-            stream.Match(TokenType.OpenCurlyBracket);
-            InstructionBlock block = ParseInstructionBlock(scope);
-            stream.Match(TokenType.ClosedCurlyBracket);
-            return new WhileStatement(condition, block);
-        }
-        private IfStatement ParseIF(Scope<IDSLType> scope)
-        {
-            stream.Match(TokenType.If);
-            stream.Match(TokenType.OpenParenthesis);
-            IExpression condition = Exp(scope);
-            stream.Match(TokenType.ClosedParenthesis);
-            stream.Match(TokenType.OpenCurlyBracket);
-            InstructionBlock block = ParseInstructionBlock(scope);
-            stream.Match(TokenType.ClosedCurlyBracket);
-            return new IfStatement(condition, block);
-        }
-        private InstructionBlock ParseInstructionBlock(Scope<IDSLType>? parentScope)
-        {
-            List<IInstruction> instructions = new();
-            Scope<IDSLType> scope = new(parentScope);
-            TokenType[] instructionBlockAllowedTokens = new TokenType[]
-            {
-                TokenType.If,
-                TokenType.While,
-                TokenType.Print,
-                TokenType.Identifier,
-                TokenType.For,
-                TokenType.Number,
-                TokenType.String,
-                TokenType.OpenSquareBracket,
-                TokenType.Bool,
-                TokenType.OpenParenthesis,
-                TokenType.Not,
-                TokenType.Minus
-            };
-            while (instructionBlockAllowedTokens.Contains(stream.CurrentToken.Type))
-            {
-                switch (stream.CurrentToken.Type)
-                {
-                    case TokenType.Print:
-                        instructions.Add(ParsePRINT(scope));
-                        break;
-                    case TokenType.If:
-                        instructions.Add(ParseIF(scope));
-                        break;
-                    case TokenType.While:
-                        instructions.Add(ParseWHILE(scope));
-                        break;
-                    case TokenType.For:
-                        instructions.Add(ParseFor(scope));
-                        break;
-                    case TokenType.Identifier:
-                        switch (stream.LookNextToken().Type)
-                        {
-
-                            case TokenType.VariableAssigmnet:
-                                instructions.Add(ParseVariableDeclaration(scope));
-                                break;
-                            case TokenType.dot or TokenType.OpenSquareBracket:
-                                IExpression exp = Exp(scope);
-                                if (exp is IInstruction I)
-                                {
-                                    instructions.Add(I);
-                                    stream.Match(TokenType.SemiColon);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    default:
-                        throw new Exception("Just statements, calls, asigments, increasing and decrasing operators are valid instructions");
-                }
-            }
-            return new InstructionBlock(instructions, scope);
-        }
-        
-        #endregion
         public void NextInstruction()
         {
-            CurrentInstruction = ParseInstructionBlock(null);
+            CurrentInstruction = ParseEffectInfo(new Context());
         }
+
     }
+
 }

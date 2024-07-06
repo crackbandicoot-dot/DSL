@@ -54,6 +54,22 @@ namespace DSL.Lexer
         Not,
         NotEqual,
         Print,
-        Power
+        Power,
+        Action,
+        Params,
+        Name,
+        BooleanType,
+        StringType,
+        NumberType,
+        Type,
+        Faction,
+        Range,
+        OnActivation,
+        EffectInstanciation,
+        Selector,
+        Source,
+        Single,
+        Predicate,
+        PostAction
     }
 }

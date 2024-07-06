@@ -12,6 +12,8 @@ namespace DSL.Lexer
 
         private readonly Dictionary<string, TokenType> _keyWordsTokens = new Dictionary<string, TokenType>()
         {
+            //TODO
+            //Agregar las palabras claves que faltan
             {"for",TokenType.For},
             {"in",TokenType.In},
             {"while",TokenType.While},
@@ -20,9 +22,19 @@ namespace DSL.Lexer
             {"card",TokenType.Card},
             {"effect",TokenType.Effect},
             {"print",TokenType.Print},
-            {"if",TokenType.If}
-
-
+            {"if",TokenType.If},
+            {"Effect",TokenType.EffectInstanciation},
+            {"Action",TokenType.Action},
+            {"Params",TokenType.Params },
+            {"Name",TokenType.Name},
+            {"Type",TokenType.Type},
+            {"Faction",TokenType.Faction},
+            {"Power",TokenType.Power},
+            {"Range",TokenType.Range},
+            {"OnActivation",TokenType.OnActivation},
+            {"Number",TokenType.NumberType},
+            {"String",TokenType.StringType},
+            {"Boolean",TokenType.BooleanType }
         };
         private char _currentChar => _col > _text.Length - 1 ? '\0' : _text[_col];
 
@@ -35,6 +47,9 @@ namespace DSL.Lexer
         }
         public void NextToken()
         {
+            //TODO 
+            //Poner una pila
+            //Hanilitar la fila y columna adecuadamente
             Position currentPos = new Position(_line, _col);
             if (char.IsWhiteSpace(_currentChar))
             {

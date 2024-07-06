@@ -25,16 +25,16 @@ namespace DSL.Lexer
         public Token LookBackToken() => Peek(-1);
         public Token Peek(int amountOfSteps) => _position + amountOfSteps < _baseList.Count ? _baseList[_position + amountOfSteps] : new Token(TokenType.EOF, "", new Position(0, 0));
         public void Advance(int numberOfSteps = 1) => _position += numberOfSteps;
-        public void Close(int numberOfSteps = 1) => _position -= numberOfSteps;
-        public Token Match(TokenType tokenType)
+        public Token Eat(params TokenType[] types)
         {
-            if (CurrentToken.Type == tokenType)
+            if (Match(types))
             {
                 Token result = new Token(CurrentToken);
                 Advance();
                 return result;
             }
-            throw new NotImplementedException($"Sintax error {tokenType} expected");
+            throw new NotImplementedException($"Sintax error,expecetd{string.Join("or",types)} token");
         }
+        public bool Match(params TokenType[] types) => types.Any(t => t==CurrentToken.Type);
     }
 }
