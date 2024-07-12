@@ -1,15 +1,52 @@
 effect
 {
-	Name : "ReturnToDeck",
-	Action : (targets,context) =>
+	Name: "",
+	Action : (name) =>
 	{
-		for(target in targets)
-		{
-			owner = target.Owner;
-			deck = context.DeckOfPlayer(owner);
-			deck.Push(target);
-			deck.Shuffle();
-			context.Board.Remove(target);
-		}
+		print("Mientras mas me la mamas, mas me crece");
+		print(name);
 	}
+}
+card
+{
+	Type : "Oro",
+	Name : "Beluga",
+	Faction : "Nothern Realms",
+	Power: 10,
+	Range : ["Melee","Ranged"],
+	OnActivation :
+	[
+		{
+			Effect : 
+			{
+				Name:"Damage",
+				Amount : 5
+			},
+			Selector:
+			{
+				Source : "Board",
+				Single: false,
+				Predicate : (unit) => unit.Faction == "Nothern Realms"
+			},
+			PostAction:
+			{
+				Effect:
+				{
+					Name : "ReturnToDeck"
+				},
+				Selector:
+				{
+					Source : "parent",
+					Single :false,
+					Predicate : (unit) => unit.Power<10
+				}
+			}
+		},
+		{
+			Effect:
+			{
+				Name : "Draw"
+			}
+		}
+	]
 }

@@ -1,4 +1,5 @@
 ﻿using DSL.Evaluator.Expressions;
+using DSL.Evaluator.Expressions.NumberExpressions;
 using DSL.Evaluator.LenguajeTypes;
 using System;
 using System.Collections.Generic;
@@ -8,20 +9,27 @@ using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Instructions.ObjectDeclaration
 {
-    internal class CardDeclaration : ObjectDeclaration
+    internal class CardDeclaration : IInstruction
     {
-        public CardDeclaration(Context context) : base(context)
+        private readonly Context context;
+        private readonly IExpression cardBody;
+
+        public CardDeclaration(Context context,IExpression cardBody) 
         {
+            this.context = context;
+            this.cardBody = cardBody;
         }
-        public string Name { get; internal set; }
-        public string Type { get; internal set; }
-        public string Faction { get; internal set; }
-        public double Power { get; internal set; }
-        public string[] Range { get; internal set; }
-        public Effect[] OnActivation{ get; internal set; }
-        protected override IDSLObject CreateObject(Dictionary<string, IExpression> properties)
+        public void Execute()
         {
-            throw new NotImplementedException();
+            var evaluatedExpression = cardBody.Evaluate();
+            if (evaluatedExpression is AnonimusObject obj)
+            {
+                context.Declare(new Card(obj));
+            }
+            else
+            {
+                throw new Exception("Invalid Card Declaration");
+            }
         }
     }
 }

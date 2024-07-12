@@ -9,15 +9,24 @@ namespace DSL.Evaluator.LenguajeTypes
 {
     internal class Delegate : IDSLType
     {
-        private readonly string[] identifiers;
         private readonly IExpression expression;
-        public Delegate(string[] identifiers,IExpression expression)
+
+        public Delegate(string[] identifiers,IExpression expression) 
         {
-            this.identifiers = identifiers;
+            Identifiers = identifiers;
             this.expression = expression;
         }
+
+        public IDSLType Invoke(params IDSLType[] parameters)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+        public string[] Identifiers { get; }
+
         public bool Equals(IDSLType? other)
         {
+            //TODO
             throw new NotImplementedException();
         }
     }

@@ -8,19 +8,29 @@ using System.Threading.Tasks;
 
 namespace DSL.Evaluator.Instructions.ObjectDeclaration
 {
-    internal class EffectDeclaration : ObjectDeclaration
+    internal class EffectDeclaration : IInstruction
     {
-        public EffectDeclaration(Context context) : base(context)
+        private readonly Context context;
+        private readonly IExpression effectBody;
+
+        public EffectDeclaration(Context context,IExpression effectBody)
         {
+            this.context = context;
+            this.effectBody= effectBody;
         }
 
-        public string Name { get; internal set; }
-        public LenguajeTypes.Action Action { get; internal set; }
-        public Dictionary<string, string> Params { get; internal set; }
-
-        protected override IDSLObject CreateObject(Dictionary<string, IExpression> properties)
+        public void Execute()
         {
-            throw new NotImplementedException();
+            var evaluatedExpression = effectBody.Evaluate();
+            if (evaluatedExpression is AnonimusObject obj)
+            {
+                context.Declare(new Effect(obj));
+            }
+            else
+            {
+                throw new Exception("Invalid Effect Declaration");
+            }
+            
         }
     }
 }

@@ -1,22 +1,23 @@
 ﻿using DSL.Evaluator.LenguajeTypes;
 
+
 namespace DSL.Evaluator.Instructions.ObjectDeclaration
 {
     public class Context
     {
 
-        Dictionary<string, IDSLObject> objects;
+        Dictionary<LenguajeTypes.String, IDSLObject> objects;
 
         public Context()
         {
-            objects = new Dictionary<string, IDSLObject>();
+            objects = new Dictionary<LenguajeTypes.String, IDSLObject>();
         }
 
         internal void Declare(IDSLObject obj)
         {
             objects.Add(obj.Name, obj);
         }
-        internal IDSLObject Acced(string objName)
+        internal IDSLObject Acced(LenguajeTypes.String objName)
         {
             if (objects.TryGetValue(objName, out IDSLObject? value))
             {

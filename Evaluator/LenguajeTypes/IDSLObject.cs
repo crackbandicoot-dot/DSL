@@ -8,6 +8,6 @@ namespace DSL.Evaluator.LenguajeTypes
 {
     internal interface IDSLObject : IDSLType
     {
-      string Name { get; }   
+      String Name { get; }   
     }
 }

@@ -1,8 +1,10 @@
 ﻿// Ignore Spelling: Lexer
 
+using System.Collections;
+
 namespace DSL.Lexer
 {
-    internal class LexerStream
+    internal class LexerStream : IEnumerable<Token>
     {
 
         private List<Token> _baseList = new List<Token>();
@@ -33,8 +35,28 @@ namespace DSL.Lexer
                 Advance();
                 return result;
             }
-            throw new NotImplementedException($"Sintax error,expecetd{string.Join("or",types)} token");
+            throw new NotImplementedException($"Sintax error,expecetd{string.Join("or",types)} token in {CurrentToken.Pos}");
         }
         public bool Match(params TokenType[] types) => types.Any(t => t==CurrentToken.Type);
+        public bool MatchPrefix(params TokenType[] prefix)
+        {
+            for (int i = 0; i < prefix.Length; i++)
+            {
+                if (Peek(i).Type != prefix[i]) return false;
+            }
+            return true;
+        }
+        public override string ToString()
+        {
+            return string.Join(',', _baseList);
+        }
+        public IEnumerator<Token> GetEnumerator()
+        {
+            return ((IEnumerable<Token>)_baseList).GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)_baseList).GetEnumerator();
+        }
     }
 }

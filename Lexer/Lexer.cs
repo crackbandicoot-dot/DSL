@@ -1,5 +1,6 @@
 ﻿// Ignore Spelling: Interpeter DSL Lexer
 
+using System.Security;
 using System.Text;
 
 namespace DSL.Lexer
@@ -7,13 +8,13 @@ namespace DSL.Lexer
     internal class Lexer
     {
         private readonly string _text;
+        private int _currentCharIndex;
         private int _col;
         private int _line;
-
+        private Stack<Token> groupTokens = new Stack<Token>();
+        Position currentPos { get => new Position(_line, _col); }
         private readonly Dictionary<string, TokenType> _keyWordsTokens = new Dictionary<string, TokenType>()
         {
-            //TODO
-            //Agregar las palabras claves que faltan
             {"for",TokenType.For},
             {"in",TokenType.In},
             {"while",TokenType.While},
@@ -23,21 +24,11 @@ namespace DSL.Lexer
             {"effect",TokenType.Effect},
             {"print",TokenType.Print},
             {"if",TokenType.If},
-            {"Effect",TokenType.EffectInstanciation},
-            {"Action",TokenType.Action},
-            {"Params",TokenType.Params },
-            {"Name",TokenType.Name},
-            {"Type",TokenType.Type},
-            {"Faction",TokenType.Faction},
-            {"Power",TokenType.Power},
-            {"Range",TokenType.Range},
-            {"OnActivation",TokenType.OnActivation},
             {"Number",TokenType.NumberType},
             {"String",TokenType.StringType},
             {"Boolean",TokenType.BooleanType }
         };
-        private char _currentChar => _col > _text.Length - 1 ? '\0' : _text[_col];
-
+        private char _currentChar => _currentCharIndex > _text.Length - 1 ? '\0' : _text[_currentCharIndex];
         public Token CurrentToken { get; private set; }
 
         public Lexer(string text)
@@ -47,62 +38,64 @@ namespace DSL.Lexer
         }
         public void NextToken()
         {
-            //TODO 
-            //Poner una pila
-            //Hanilitar la fila y columna adecuadamente
-            Position currentPos = new Position(_line, _col);
             if (char.IsWhiteSpace(_currentChar))
             {
                 SkipWhiteSpaces();
-            }
-            if (_currentChar == '\n')
-            {
-                SkipLineFeed();
             }
             switch (_currentChar)
             {
 
                 case '\0':
                     CurrentToken = new Token(TokenType.EOF, "", currentPos);
+                    if (groupTokens.Count!=0)
+                    {
+                        throw new Exception($"Unmacthced {groupTokens.Peek().Value} on {groupTokens.Peek().Pos}");
+                    }
                     AdvanceChar();
                     break;
                 case '+':
-                    CurrentToken = WithPlusToken(currentPos);
+                    CurrentToken = WithPlusToken();
                     break;
                 case '-':
-                    CurrentToken = WithMinuslToken(currentPos);
+                    CurrentToken = WithMinusToken();
                     break;
                 case '@':
-                    CurrentToken = ConcatenationToken(currentPos);
+                    CurrentToken = ConcatenationToken();
                     break;
                 case '(':
                     CurrentToken = new Token(TokenType.OpenParenthesis, "(", currentPos);
+                    CheckBalance(CurrentToken);
                     AdvanceChar();
                     break;
                 case ')':
                     CurrentToken = new Token(TokenType.ClosedParenthesis, ")", currentPos);
+                    CheckBalance(CurrentToken);
                     AdvanceChar();
                     break;
                 case '|':
-                    CurrentToken = OrToken(currentPos);
+                    CurrentToken = OrToken();
                     break;
                 case '&':
-                    CurrentToken = AndToken(currentPos);
+                    CurrentToken = AndToken();
                     break;
                 case '{':
                     CurrentToken = new Token(TokenType.OpenCurlyBracket, "{", currentPos);
+                    CheckBalance(CurrentToken);
                     AdvanceChar();
                     break;
                 case '}':
                     CurrentToken = new Token(TokenType.ClosedCurlyBracket, "}", currentPos);
+                    CheckBalance(CurrentToken);
                     AdvanceChar();
                     break;
                 case '[':
                     CurrentToken = new Token(TokenType.OpenSquareBracket, "[", currentPos);
+                    CheckBalance(CurrentToken);
                     AdvanceChar();
                     break;
                 case ']':
                     CurrentToken = new Token(TokenType.ClosedSquareBracket, "]", currentPos);
+                    CheckBalance(CurrentToken);
                     AdvanceChar();
                     break;
                 case ':':
@@ -118,32 +111,32 @@ namespace DSL.Lexer
                     AdvanceChar();
                     break;
                 case '"':
-                    CurrentToken = StringToken(currentPos);
+                    CurrentToken = StringToken();
                     break;
                 case '=':
-                    CurrentToken = WithEqualToken(currentPos);
+                    CurrentToken = WithEqualToken();
                     break;
                 case '<':
-                    CurrentToken = WithLessToken(currentPos);
+                    CurrentToken = WithLessToken();
                     break;
                 case '>':
-                    CurrentToken = WithGreaterToken(currentPos);
+                    CurrentToken = WithGreaterToken();
                     break;
                 case '.':
                     AdvanceChar();
                     CurrentToken = new Token(TokenType.dot, ".", currentPos);
                     break;
                 case '!':
-                    CurrentToken = WithExclamationToken(currentPos);
+                    CurrentToken = WithExclamationToken();
                     break;
                 default:
                     if (char.IsDigit(_currentChar))
                     {
-                        CurrentToken = NumberToken(currentPos);
+                        CurrentToken = NumberToken();
                     }
                     else if (char.IsLetter(_currentChar))
                     {
-                        CurrentToken = WithLetterToken(currentPos);
+                        CurrentToken = WithLetterToken();
                     }
                     else
                     {
@@ -154,16 +147,44 @@ namespace DSL.Lexer
             //Aqui hay que checar basado en el caracter acutal
             // Lo que se va a tomar de token
         }
-
+        private void CheckBalance(Token currentToken)
+        {
+            Dictionary<TokenType, TokenType> couples = new()
+            {
+                {TokenType.ClosedParenthesis,TokenType.OpenParenthesis},
+                { TokenType.ClosedSquareBracket,TokenType.OpenSquareBracket},
+                {TokenType.ClosedCurlyBracket,TokenType.OpenCurlyBracket }
+            };
+            if (couples.ContainsValue(currentToken.Type))
+            {
+                groupTokens.Push(new Token(currentToken));
+            }
+            else
+            {
+                if (groupTokens.Count==0 )
+                {
+                    throw new Exception($"On {currentToken.Pos} expected {couples[currentToken.Type]}");
+                }
+                else if(couples[currentToken.Type] != groupTokens.Peek().Type)
+                {
+                    throw new Exception($"Unmacthced {groupTokens.Peek().Value} on {groupTokens.Peek().Type}");
+                }
+                else
+                {
+                    groupTokens.Pop();
+                }
+            }
+        }
         private void SkipLineFeed()
         {
             while (_currentChar == '\n')
             {
+
                 AdvanceChar();
                 AdvanceLine();
             }
         }
-        private Token WithExclamationToken(Position currentPos)
+        private Token WithExclamationToken()
         {
             AdvanceChar();
             if (_currentChar == '=')
@@ -176,8 +197,9 @@ namespace DSL.Lexer
         private void AdvanceLine()
         {
             _line++;
+            _col = 0;
         }
-        private Token WithGreaterToken(Position currentPos)
+        private Token WithGreaterToken()
         {
             AdvanceChar();
             if (_currentChar == '=')
@@ -190,8 +212,7 @@ namespace DSL.Lexer
                 return new Token(TokenType.Greater, ">", currentPos);
             }
         }
-
-        private Token WithLessToken(Position currentPos)
+        private Token WithLessToken()
         {
             AdvanceChar();
             if (_currentChar == '=')
@@ -205,16 +226,21 @@ namespace DSL.Lexer
                 return new Token(TokenType.Less, "<", currentPos);
             }
         }
-
         private void SkipWhiteSpaces()
         {
             while (char.IsWhiteSpace(_currentChar))
             {
-                AdvanceChar();
+                if (_currentChar=='\n')
+                { 
+                   SkipLineFeed();
+                }
+                else
+                {
+                    AdvanceChar();
+                }
             }
         }
-
-        private Token WithLetterToken(Position pos)
+        private Token WithLetterToken()
         {
             StringBuilder sb = new StringBuilder();
             while (char.IsLetter(_currentChar) || char.IsDigit(_currentChar))
@@ -225,15 +251,14 @@ namespace DSL.Lexer
             string tokenString = sb.ToString();
             if (_keyWordsTokens.ContainsKey(tokenString))
             {
-                return new Token(_keyWordsTokens[tokenString], tokenString, pos);
+                return new Token(_keyWordsTokens[tokenString], tokenString, currentPos);
             }
             else
             {
-                return new Token(TokenType.Identifier, tokenString, pos);
+                return new Token(TokenType.Identifier, tokenString, currentPos);
             }
         }
-
-        private Token WithMinuslToken(Position currentPos)
+        private Token WithMinusToken()
         {
             AdvanceChar();
             if (_currentChar == '-')
@@ -246,18 +271,17 @@ namespace DSL.Lexer
                 return new Token(TokenType.Minus, "-", currentPos);
             }
         }
-
-        private Token WithPlusToken(Position position)
+        private Token WithPlusToken()
         {
             AdvanceChar();
             if (_currentChar == '+')
             {
                 AdvanceChar();
-                return new Token(TokenType.Increment, "++", position);
+                return new Token(TokenType.Increment, "++", currentPos);
             }
             else
             {
-                return new Token(TokenType.Sum, "+", position);
+                return new Token(TokenType.Sum, "+", currentPos);
             }
         }
         private void TakeDigits(StringBuilder sb)
@@ -268,7 +292,7 @@ namespace DSL.Lexer
                 AdvanceChar();
             }
         }
-        private Token NumberToken(Position position)
+        private Token NumberToken()
         {
             StringBuilder sb = new StringBuilder();
             TakeDigits(sb);
@@ -279,7 +303,7 @@ namespace DSL.Lexer
                 if (char.IsDigit(_currentChar))
                 {
                     TakeDigits(sb);
-                    return new Token(TokenType.Number, sb.ToString(), position);
+                    return new Token(TokenType.Number, sb.ToString(), currentPos);
                 }
                 else
                 {
@@ -288,30 +312,28 @@ namespace DSL.Lexer
             }
             else
             {
-                return new Token(TokenType.Number, sb.ToString(), position);
+                return new Token(TokenType.Number, sb.ToString(), currentPos);
             }
         }
-
-        private Token WithEqualToken(Position position)
+        private Token WithEqualToken()
         {
             AdvanceChar();
             if (_currentChar == '=')
             {
                 AdvanceChar();
-                return new Token(TokenType.Equal, "==", position);
+                return new Token(TokenType.Equal, "==", currentPos);
             }
             else if (_currentChar == '>')
             {
                 AdvanceChar();
-                return new Token(TokenType.FunctionAssigment, "=>", position);
+                return new Token(TokenType.FunctionAssigment, "=>", currentPos);
             }
             else
             {
-                return new Token(TokenType.VariableAssigmnet, "=", position);
+                return new Token(TokenType.VariableAssigmnet, "=", currentPos);
             }
         }
-
-        private Token StringToken(Position position)
+        private Token StringToken()
         {
             StringBuilder sb = new();
             sb.Append(_currentChar);
@@ -329,7 +351,7 @@ namespace DSL.Lexer
             {
                 sb.Append('"');
                 AdvanceChar();
-                return new Token(TokenType.String, sb.ToString(), position);
+                return new Token(TokenType.String, sb.ToString(), currentPos);
             }
             else
             {
@@ -337,51 +359,49 @@ namespace DSL.Lexer
             }
 
         }
-
-        private Token AndToken(Position position)
+        private Token AndToken()
         {
             AdvanceChar();
             if (_currentChar == '&')
             {
                 AdvanceChar();
-                return new Token(TokenType.And, "&&", position);
+                return new Token(TokenType.And, "&&", currentPos);
             }
             else
             {
-                throw new Exception($"Lexical error,expected & in {position}");
+                throw new Exception($"Lexical error,expected & in {currentPos}");
             }
         }
-
-        private Token OrToken(Position position)
+        private Token OrToken( 
+            )
         {
             AdvanceChar();
             if (_currentChar == '|')
             {
                 AdvanceChar();
-                return new Token(TokenType.Or, "||", position);
+                return new Token(TokenType.Or, "||", currentPos);
             }
             else
             {
-                throw new Exception($"Lexical error,expected | in {position}");
+                throw new Exception($"Lexical error,expected | in {currentPos}");
             }
         }
-
-        private Token ConcatenationToken(Position position)
+        private Token ConcatenationToken()
         {
             AdvanceChar();
             if (_currentChar == '@')
             {
                 AdvanceChar();
-                return new Token(TokenType.ConcatenationWithSpaces, "@@", position);
+                return new Token(TokenType.ConcatenationWithSpaces, "@@", currentPos);
             }
             else
             {
-                return new Token(TokenType.Concatenation, "@", position);
+                return new Token(TokenType.Concatenation, "@", currentPos);
             }
         }
-
         public void AdvanceChar()
         {
+            _currentCharIndex++;
             _col++;
         }
     }

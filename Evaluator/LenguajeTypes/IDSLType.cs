@@ -1,6 +1,6 @@
 ﻿namespace DSL.Evaluator.LenguajeTypes
 {
-    internal interface IDSLType : IEquatable<IDSLType>
+    public interface IDSLType : IEquatable<IDSLType>
     {
        string ToString();
     }

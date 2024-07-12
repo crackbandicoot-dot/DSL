@@ -20,7 +20,7 @@ namespace DSL.Lexer
             Value = (string)tokenToCopy.Value.Clone();
             Pos = tokenToCopy.Pos;
         }
-        public override string ToString() => $"({Type},{Value})";
+        public override string ToString() => $"( Token of type {Type} and value {Value} on {Pos})";
 
     }
 }
