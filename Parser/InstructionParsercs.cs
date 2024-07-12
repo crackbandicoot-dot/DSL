@@ -1,12 +1,12 @@
-﻿using DSL.Evaluator.Expressions;
-using DSL.Evaluator.Instructions.Statements.ConditionalStatements;
-using DSL.Evaluator.Instructions.Statements.LoopStatements;
-using DSL.Evaluator.Instructions.Statements.SimpleStatements;
-using DSL.Evaluator.Instructions.Statements;
-using DSL.Evaluator.Instructions;
-using DSL.Evaluator.LenguajeTypes;
+﻿using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.Scope;
 using DSL.Lexer;
+using DSL.Evaluator.AST.Expressions;
+using DSL.Evaluator.AST.Instructions;
+using DSL.Evaluator.AST.Instructions.Statements;
+using DSL.Evaluator.AST.Instructions.Statements.ConditionalStatements;
+using DSL.Evaluator.AST.Instructions.Statements.LoopStatements;
+using DSL.Evaluator.AST.Instructions.Statements.SimpleStatements;
 
 namespace DSL.Parser
 {

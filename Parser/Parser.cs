@@ -1,7 +1,7 @@
 ﻿// Ignore Spelling: lexer DSL
-using DSL.Evaluator.Expressions;
-using DSL.Evaluator.Instructions;
-using DSL.Evaluator.Instructions.ObjectDeclaration;
+using DSL.Evaluator.AST.Expressions;
+using DSL.Evaluator.AST.Instructions;
+using DSL.Evaluator.AST.Instructions.ObjectDeclaration;
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.Scope;
 using DSL.Lexer;

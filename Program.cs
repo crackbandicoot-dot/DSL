@@ -1,4 +1,4 @@
-﻿using DSL.Evaluator.Instructions.ObjectDeclaration;
+﻿using DSL.Evaluator.AST.Instructions.ObjectDeclaration;
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Lexer;
 using DSL.Parser;

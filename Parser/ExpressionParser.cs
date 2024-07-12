@@ -1,17 +1,17 @@
-﻿using DSL.Evaluator.Expressions.BooleanExpressions.Comparators;
-using DSL.Evaluator.Expressions.BooleanExpressions;
-using DSL.Evaluator.Expressions.DotChainExpressions;
-using DSL.Evaluator.Expressions.ListExpression;
-using DSL.Evaluator.Expressions.NumberExpressions;
-using DSL.Evaluator.Expressions;
-using DSL.Evaluator.Instructions;
-using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
+﻿using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Evaluator.Scope;
 using DSL.Lexer;
-using DSL.Evaluator.Instructions.Statements;
 using System.Linq.Expressions;
 using System.ComponentModel.Design;
+using DSL.Evaluator.AST.Expressions;
+using DSL.Evaluator.AST.Instructions;
+using DSL.Evaluator.AST.Instructions.Statements;
+using DSL.Evaluator.AST.Expressions.BooleanExpressions;
+using DSL.Evaluator.AST.Expressions.BooleanExpressions.Comparators;
+using DSL.Evaluator.AST.Expressions.NumberExpressions;
+using DSL.Evaluator.AST.Expressions.DotChainExpressions;
+using DSL.Evaluator.AST.Expressions.ListExpression;
 namespace DSL.Parser
 {
     internal partial class Parser
@@ -226,7 +226,7 @@ namespace DSL.Parser
                 case TokenType.Bool:
                     return new SimpleExpression(ParseToken(stream.Eat(TokenType.Bool)));
                 case TokenType.Identifier:
-                    return new Variable(stream.Eat(TokenType.Identifier).Value, scope);
+                    return new Variable(stream.Eat(TokenType.Identifier), scope);
                 case TokenType.OpenParenthesis:
                     if (
                         stream.MatchPrefix

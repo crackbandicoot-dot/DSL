@@ -1,5 +1,5 @@
 ﻿// Ignore Spelling: lexer DSL
-using DSL.Evaluator.Instructions.ObjectDeclaration;
+using DSL.Evaluator.AST.Instructions.ObjectDeclaration;
 
 namespace DSL.Evaluator.LenguajeTypes
 {
