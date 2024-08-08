@@ -11,6 +11,6 @@ namespace DSL.Lexer
             Line = line;
             Column = column;
         }
-        public override string ToString() => $"Line: {Line} Column: {Column}";
+        public override readonly string ToString() => $"Line: {Line} Column: {Column}";
     }
 }

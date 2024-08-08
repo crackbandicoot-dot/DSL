@@ -1,6 +1,5 @@
 ﻿// Ignore Spelling: Interpeter DSL Lexer
 
-using System.Security;
 using System.Text;
 
 namespace DSL.Lexer
@@ -47,7 +46,7 @@ namespace DSL.Lexer
 
                 case '\0':
                     CurrentToken = new Token(TokenType.EOF, "", currentPos);
-                    if (groupTokens.Count!=0)
+                    if (groupTokens.Count != 0)
                     {
                         throw new Exception($"Unmacthced {groupTokens.Peek().Value} on {groupTokens.Peek().Pos}");
                     }
@@ -116,6 +115,26 @@ namespace DSL.Lexer
                 case '=':
                     CurrentToken = WithEqualToken();
                     break;
+                case '?':
+                    CurrentToken = new Token(TokenType.Questioning, "?", currentPos);
+                    AdvanceChar();
+                    break;
+                case '^':
+                    CurrentToken = new Token(TokenType.Power, "^", currentPos);
+                    AdvanceChar();
+                    break;
+                case '*':
+                    CurrentToken = new Token(TokenType.Star, "*", currentPos);
+                    AdvanceChar();
+                    break;
+                case '/':
+                    CurrentToken = new Token(TokenType.Slash, "/", currentPos);
+                    AdvanceChar();
+                    break;
+                case '%':
+                    CurrentToken = new Token(TokenType.Modulo, "%", currentPos);
+                    AdvanceChar();
+                    break;
                 case '<':
                     CurrentToken = WithLessToken();
                     break;
@@ -161,11 +180,11 @@ namespace DSL.Lexer
             }
             else
             {
-                if (groupTokens.Count==0 )
+                if (groupTokens.Count == 0)
                 {
                     throw new Exception($"On {currentToken.Pos} expected {couples[currentToken.Type]}");
                 }
-                else if(couples[currentToken.Type] != groupTokens.Peek().Type)
+                else if (couples[currentToken.Type] != groupTokens.Peek().Type)
                 {
                     throw new Exception($"Unmacthced {groupTokens.Peek().Value} on {groupTokens.Peek().Type}");
                 }
@@ -230,9 +249,9 @@ namespace DSL.Lexer
         {
             while (char.IsWhiteSpace(_currentChar))
             {
-                if (_currentChar=='\n')
-                { 
-                   SkipLineFeed();
+                if (_currentChar == '\n')
+                {
+                    SkipLineFeed();
                 }
                 else
                 {
@@ -266,6 +285,11 @@ namespace DSL.Lexer
                 AdvanceChar();
                 return new Token(TokenType.Decrement, "--", currentPos);
             }
+            else if (_currentChar == '=')
+            {
+                AdvanceChar();
+                return new Token(TokenType.MinusAssigment, "-=", currentPos);
+            }
             else
             {
                 return new Token(TokenType.Minus, "-", currentPos);
@@ -278,6 +302,11 @@ namespace DSL.Lexer
             {
                 AdvanceChar();
                 return new Token(TokenType.Increment, "++", currentPos);
+            }
+            else if (_currentChar == '=')
+            {
+                AdvanceChar();
+                return new Token(TokenType.SumAssigment, "+=", currentPos);
             }
             else
             {
@@ -336,20 +365,14 @@ namespace DSL.Lexer
         private Token StringToken()
         {
             StringBuilder sb = new();
-            sb.Append(_currentChar);
             AdvanceChar();
             while (_currentChar != '"' && _currentChar != '\0')
             {
-                if (_currentChar == '"')
-                {
-                    Console.WriteLine("C# ES PINGA");
-                }
                 sb.Append(_currentChar);
                 AdvanceChar();
             }
             if (_currentChar == '"')
             {
-                sb.Append('"');
                 AdvanceChar();
                 return new Token(TokenType.String, sb.ToString(), currentPos);
             }
@@ -372,7 +395,7 @@ namespace DSL.Lexer
                 throw new Exception($"Lexical error,expected & in {currentPos}");
             }
         }
-        private Token OrToken( 
+        private Token OrToken(
             )
         {
             AdvanceChar();

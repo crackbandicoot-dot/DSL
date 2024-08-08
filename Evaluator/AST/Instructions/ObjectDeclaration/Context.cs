@@ -1,29 +1,40 @@
-﻿using DSL.Evaluator.LenguajeTypes;
+﻿
+using DSL.Evaluator.LenguajeTypes;
 
 
 namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration
 {
     public class Context
     {
-
-        Dictionary<LenguajeTypes.String, IDSLObject> objects;
+        public Dictionary<string, Card> cards;
+        private Dictionary<string, Effect> effects;
 
         public Context()
         {
-            objects = new Dictionary<LenguajeTypes.String, IDSLObject>();
+            cards = new Dictionary<string, Card>();
+            effects = new Dictionary<string, Effect>();
         }
 
-        internal void Declare(IDSLObject obj)
+        internal bool ContainsEffect(string v)
         {
-            objects.Add(obj.Name, obj);
+            return effects.ContainsKey(v);
         }
-        internal IDSLObject Acced(LenguajeTypes.String objName)
+
+        internal void Declare(Card card)
         {
-            if (objects.TryGetValue(objName, out IDSLObject? value))
-            {
-                return value;
-            }
-            throw new Exception($"Object {objName} is not in the current context");
+            cards.Add(card.Name, card);
+        }
+        internal void Declare(Effect effect)
+        {
+            effects.Add(effect.Name, effect);
+        }
+        internal Card GetCard(string cardName)
+        {
+            return cards[cardName];
+        }
+        internal Effect GetEffect(string effectName)
+        {
+            return effects[effectName];
         }
     }
 }

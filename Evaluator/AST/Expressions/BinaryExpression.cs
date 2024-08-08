@@ -1,10 +1,4 @@
-﻿
-
-using DSL.Errors;
-
-// Ignore Spelling: DSL
-
-using DSL.Evaluator.LenguajeTypes;
+﻿// Ignore Spelling: DSL
 
 namespace DSL.Evaluator.AST.Expressions
 {
@@ -19,9 +13,9 @@ namespace DSL.Evaluator.AST.Expressions
             this.right = right;
         }
 
-        protected abstract IDSLType Operate(IDSLType left, IDSLType right);
-        public IDSLType Evaluate() => Operate(left.Evaluate(), right.Evaluate());
-        
+        protected abstract object Operate(object left, object right);
+        public object Evaluate() => Operate(left.Evaluate(), right.Evaluate());
+
     }
 
 }

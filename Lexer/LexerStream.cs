@@ -7,7 +7,7 @@ namespace DSL.Lexer
     internal class LexerStream : IEnumerable<Token>
     {
 
-        private List<Token> _baseList = new List<Token>();
+        private readonly List<Token> _baseList = new();
         private int _position = 0;
         public Token CurrentToken { get => Peek(0); }
         public LexerStream(string input)
@@ -31,13 +31,13 @@ namespace DSL.Lexer
         {
             if (Match(types))
             {
-                Token result = new Token(CurrentToken);
+                Token result = new(CurrentToken);
                 Advance();
                 return result;
             }
-            throw new NotImplementedException($"Sintax error,expecetd{string.Join("or",types)} token in {CurrentToken.Pos}");
+            throw new NotImplementedException($"Sintax error, expected {string.Join("or", types)} token in {CurrentToken.Pos}");
         }
-        public bool Match(params TokenType[] types) => types.Any(t => t==CurrentToken.Type);
+        public bool Match(params TokenType[] types) => types.Any(t => t == CurrentToken.Type);
         public bool MatchPrefix(params TokenType[] prefix)
         {
             for (int i = 0; i < prefix.Length; i++)

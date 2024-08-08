@@ -1,6 +1,4 @@
-﻿using DSL.Evaluator.LenguajeTypes;
-
-namespace DSL.Evaluator.AST.Expressions
+﻿namespace DSL.Evaluator.AST.Expressions
 {
     internal abstract class UnaryExpression : IExpression
     {
@@ -10,8 +8,8 @@ namespace DSL.Evaluator.AST.Expressions
         {
             this.operand = operand;
         }
-        public IDSLType Evaluate() => Operate(operand.Evaluate());
-        protected abstract IDSLType Operate(IDSLType operand);
+        public object Evaluate() => Operate(operand.Evaluate());
+        protected abstract object Operate(object operand);
     }
 
 }

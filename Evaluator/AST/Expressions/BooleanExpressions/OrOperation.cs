@@ -1,7 +1,4 @@
-﻿using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
-namespace DSL.Evaluator.AST.Expressions.BooleanExpressions
+﻿namespace DSL.Evaluator.AST.Expressions.BooleanExpressions
 {
     internal class OrOperation : BinaryExpression
     {
@@ -9,13 +6,9 @@ namespace DSL.Evaluator.AST.Expressions.BooleanExpressions
         {
         }
 
-        protected override IDSLType Operate(IDSLType left, IDSLType right)
+        protected override object Operate(object left, object right)
         {
-            if (left is Bool l && right is Bool r)
-            {
-                return l | r;
-            }
-            throw new ArgumentException("Cannot apply the operator || betwen left and rigth");
+            return (bool)left || (bool)right;
         }
     }
 }

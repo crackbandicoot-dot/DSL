@@ -1,24 +1,17 @@
-﻿using DSL.Evaluator.AST.Instructions;
-using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.Scope;
+﻿using DSL.Extensor_Methods;
 
 namespace DSL.Evaluator.AST.Instructions.Statements
 {
     internal class InstructionBlock : IInstruction
     {
-        private readonly List<IInstruction> instructions;
-        public Scope<IDSLType> ScopeVariables { get; }
-        public InstructionBlock(List<IInstruction> instructions, Scope<IDSLType> scopeVariables)
+        private readonly IEnumerable<IInstruction> instructions;
+        public Scope.Scope ScopeVariables { get; }
+        public InstructionBlock(IEnumerable<IInstruction> instructions,
+            Scope.Scope scopeVariables)
         {
-            this.instructions = instructions;
-            ScopeVariables = scopeVariables;
+            this.instructions = instructions; ScopeVariables = scopeVariables;
         }
         public void Execute()
-        {
-            foreach (var instruction in instructions)
-            {
-                instruction.Execute();
-            }
-        }
+        => instructions.ForEach(inst => inst.Execute());
     }
 }

@@ -1,12 +1,5 @@
-﻿using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.AST.Instructions;
+﻿using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.LenguajeTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
 {
@@ -17,46 +10,48 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
         private readonly IExpression value;
         private readonly List<IExpression>? args;
 
-
-        public PropertySetter(IExpression left, string propertyName, IExpression value, List<IExpression> args)
+        public PropertySetter(IExpression left, string propertyName, IExpression value, List<IExpression>? args = null)
         {
             this.left = left;
             this.propertyName = propertyName;
             this.value = value;
             this.args = args;
         }
-        public PropertySetter(IExpression left, string propertyName, IExpression value)
+        public object Evaluate()
         {
-            this.left = left;
-            this.propertyName = propertyName;
-            this.value = value;
-        }
-
-        public IDSLType Evaluate()
-        {
-            return new None();
+            return typeof(void);
         }
         public void Execute()
         {
-            IDSLType l = left.Evaluate();
-            Type type = l.GetType();
-            PropertyInfo propertyInfo = type.GetProperty(propertyName);
-            if (propertyInfo != null)
+            object l = left.Evaluate();
+            if (l is Card card)
             {
-                if (args is null)
+                Dictionary<string, System.Action> propertieSeter = new()
                 {
-                    propertyInfo.SetValue(l, value.Evaluate());
-                }
-                else
-                {
-                    propertyInfo.SetValue(l, value.Evaluate(), args.Select(x => x.Evaluate()).ToArray());
-                }
+                    {"Power",() => card.Power=(double)value.Evaluate()},
+                };
+                propertieSeter[propertyName].Invoke();
             }
-            else
+            else if (l is List<object> objList)
             {
-                throw new Exception($"Type {type} does not have a definition for property {propertyName}");
+#pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
+                Dictionary<string, System.Action> propertieSeter = new()
+                {
+                    {"Indexer",() => objList[(int)Math.Floor((double)args[0].Evaluate())] = value.Evaluate()},
+                };
+#pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
+                propertieSeter[propertyName].Invoke();
             }
-
+            else if (l is List<Card> list)
+            {
+#pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
+                Dictionary<string, System.Action> propertieSeter = new()
+                {
+                    {"Indexer",() => list[(int)args[0].Evaluate()] = (Card)value.Evaluate()},
+                };
+#pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
+                propertieSeter[propertyName].Invoke();
+            }
         }
     }
 }

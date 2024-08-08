@@ -1,7 +1,4 @@
-﻿using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.LenguajeTypes;
-
-namespace DSL.Evaluator.AST.Expressions.NumberExpressions
+﻿namespace DSL.Evaluator.AST.Expressions.NumberExpressions
 {
     internal class PowerOperation : BinaryExpression
     {
@@ -9,13 +6,9 @@ namespace DSL.Evaluator.AST.Expressions.NumberExpressions
         {
         }
 
-        protected override IDSLType Operate(IDSLType left, IDSLType right)
+        protected override object Operate(object left, object right)
         {
-            if (left is Number l && right is Number r)
-            {
-                return l ^ r;
-            }
-            throw new Exception("Cannot use the operation ^ betwen l and r");
+            return Math.Pow((double)left, (double)right);
         }
     }
 }

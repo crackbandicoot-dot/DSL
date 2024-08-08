@@ -1,6 +1,5 @@
 ﻿// Ignore Spelling: DSL
 
-using DSL.Evaluator.AST.Expressions;
 using DSL.Evaluator.LenguajeTypes;
 using System.Reflection;
 
@@ -9,61 +8,70 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
     internal class PropertyGetter : IExpression
     {
         private static readonly Dictionary<Type, PropertyInfo> propertyCache = new();
-        private readonly IExpression left;
-        private readonly string propertyName;
-        private readonly List<IExpression>? args;
+        public readonly IExpression left;
+        public string propertyName;
+        public readonly List<IExpression>? args;
 
-        public PropertyGetter(IExpression left, string propertyName)
-        {
-            this.left = left;
-            this.propertyName = propertyName;
-
-        }
-        public PropertyGetter(IExpression left, string propertyName, List<IExpression> args)
+        public PropertyGetter(IExpression left, string propertyName, List<IExpression>? args = null)
         {
             this.left = left;
             this.propertyName = propertyName;
             this.args = args;
         }
-        public IDSLType Evaluate()
+        public object Evaluate()
         {
-            IDSLType l = left.Evaluate();
-            Type expType = l.GetType();
-            if (!propertyCache.TryGetValue(expType, out PropertyInfo? propertyInfo))
+            var obj = left.Evaluate();
+            if (obj is Card c)
             {
-                // Cache the property info
-                propertyInfo = expType.GetProperty(propertyName);
-                if (propertyInfo == null)
+                Dictionary<object, object> a = new()
                 {
-                    throw new Exception($"Type {expType.Name} does not have a property named '{propertyName}'.");
-                }
-                propertyCache[expType] = propertyInfo;
+                    {"Name", c.Name},
+                    {"Range", c.Range},
+                    {"Faction", c.Faction},
+                    {"Power", c.Power},
+                    {"Type", c.Type}
+                };
+                return a[propertyName];
             }
-            if (args is null)
+            else if (obj is List<object> objectList)
             {
-                object? value = propertyInfo.GetValue(l);
-                if (value is IDSLType dslTypeValue)
+
+#pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
+#pragma warning disable CS8604 // Posible argumento de referencia nulo
+                return propertyName switch
                 {
-                    return dslTypeValue;
-                }
-                else
-                {
-                    throw new InvalidCastException($"Property '{propertyName}' on type {expType.Name} is not of type IDSLType.");
-                }
+                    "Count" => objectList.Count,
+                    "Indexer" => objectList[int.Parse(args[0].Evaluate().ToString())],
+                    _ => throw new Exception($"Exception")
+                };
+#pragma warning restore CS8604 // Posible argumento de referencia nulo
+#pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
+
             }
-            else
+            else if (obj is List<Card> list)
             {
-                var array = args.Select(x => x.Evaluate()).ToArray(); //Array with a number 0
-                object? value = propertyInfo.GetValue(l, array); // exception because un match number of params
-                if (value is IDSLType dslTypeValue)
+                Dictionary<object, object> a = new()
                 {
-                    return dslTypeValue;
-                }
-                else
-                {
-                    throw new InvalidCastException($"Property '{propertyName}' on type {expType.Name} is not of type IDSLType.");
-                }
+                    {"Count",double.Parse(list.Count.ToString())},
+                   // {"Indexer",list[(int)args[0].Evaluate()]},
+                };
+                return a[propertyName];
             }
+            else if (obj is IContext context)
+            {
+                Dictionary<object, object> a = new()
+                {
+                    {"Board", context.Board},
+                    {"TriggerPlayer",(double)context.TriggerPlayer},
+                    {"Hand", context.HandOfPlayer(context.TriggerPlayer)},
+                    {"Field", context.FieldOfPlayer(context.TriggerPlayer)},
+                    {"Deck", context.DeckOfPLayer(context.TriggerPlayer)},
+                    {"GraveYard", context.GraveYardOfPlayer(context.TriggerPlayer)},
+                };
+                return a[propertyName];
+            }
+            throw new Exception("The given type is not a valid lenguaje type");
+            //object l = left.Evaluate();
         }
     }
 }

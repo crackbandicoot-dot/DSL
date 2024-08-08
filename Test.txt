@@ -1,17 +1,34 @@
 effect
 {
-	Name: "",
-	Action : (name) =>
+	Name: "PrintInfo",
+	Action: (targets,context) =>
 	{
-		print("Mientras mas me la mamas, mas me crece");
-		print(name);
+		print("Printing info ...");
+		for unit in targets{
+			print("Unit"@@unit.Name@@"has"@@unit.Power@@"Points");
+		}
 	}
 }
+effect
+{
+	Name : "Heal",
+	Params :{
+		Amount : Number
+	},
+	Action:(targets,context) =>{
+		if(targets.Count==0)
+			print("No targets founded");
+		for target in targets{
+			target.Power+=Amount;
+		}
+	}
+}
+
 card
 {
-	Type : "Oro",
-	Name : "Beluga",
-	Faction : "Nothern Realms",
+	Type : "Leader",
+	Name : "Bill",
+	Faction : "Bads",
 	Power: 10,
 	Range : ["Melee","Ranged"],
 	OnActivation :
@@ -19,34 +36,53 @@ card
 		{
 			Effect : 
 			{
-				Name:"Damage",
-				Amount : 5
+				Name:"Heal",
+				Amount : 2
 			},
 			Selector:
 			{
-				Source : "Board",
+				Source : "otherDeck",
 				Single: false,
-				Predicate : (unit) => unit.Faction == "Nothern Realms"
+				Predicate : (unit) => unit.Faction=="Goods"
 			},
 			PostAction:
 			{
 				Effect:
 				{
-					Name : "ReturnToDeck"
-				},
-				Selector:
-				{
-					Source : "parent",
-					Single :false,
-					Predicate : (unit) => unit.Power<10
+					Name : "PrintInfo"
 				}
 			}
-		},
+		}
+	]
+}
+card
+{
+	Type : "Leader",
+	Name : "Dipper",
+	Faction : "Goods",
+	Power: 5,
+	Range : ["Melee","Ranged"],
+	OnActivation :
+	[
 		{
-			Effect:
+			Effect : 
 			{
-				Name : "Draw"
+				Name:"Heal",
+				Amount: 8
+			},
+			Selector:
+			{
+				Source : "board",
+				Single: false,
+				Predicate : (unit) => unit.Faction == "Goods"
+			},
+			PostAction:
+			{
+				Effect :{
+					Name : "PrintInfo"
+				}
 			}
 		}
+
 	]
 }

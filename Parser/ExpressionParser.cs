@@ -1,32 +1,76 @@
-﻿using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.Scope;
-using DSL.Lexer;
-using System.Linq.Expressions;
-using System.ComponentModel.Design;
-using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.AST.Instructions;
-using DSL.Evaluator.AST.Instructions.Statements;
+﻿using DSL.Evaluator.AST.Expressions;
+using DSL.Evaluator.AST.Expressions.AnonimusTypeExpression;
+using DSL.Evaluator.AST.Expressions.AssignationExpressions;
 using DSL.Evaluator.AST.Expressions.BooleanExpressions;
 using DSL.Evaluator.AST.Expressions.BooleanExpressions.Comparators;
-using DSL.Evaluator.AST.Expressions.NumberExpressions;
 using DSL.Evaluator.AST.Expressions.DotChainExpressions;
+using DSL.Evaluator.AST.Expressions.LambdaExpressions;
 using DSL.Evaluator.AST.Expressions.ListExpression;
+using DSL.Evaluator.AST.Expressions.NumberExpressions;
+using DSL.Evaluator.AST.Expressions.StringExpressions;
+using DSL.Evaluator.AST.Expressions.TernaryExpressions;
+using DSL.Evaluator.AST.Expressions.TypeRestrictionExpression;
+using DSL.Evaluator.AST.Instructions;
+using DSL.Evaluator.AST.Instructions.Statements;
+using DSL.Evaluator.Scope;
+using DSL.Lexer;
 namespace DSL.Parser
 {
     internal partial class Parser
     {
         private readonly LexerStream stream;
+#pragma warning disable CS0649 // El campo 'Parser.CurrentInstruction' nunca se asigna y siempre tendrá el valor predeterminado null
         public IInstruction? CurrentInstruction;
+#pragma warning restore CS0649 // El campo 'Parser.CurrentInstruction' nunca se asigna y siempre tendrá el valor predeterminado null
         public Parser(LexerStream stream)
         {
             this.stream = stream;
         }
-        private IExpression Exp(Scope<IDSLType> scope)
+        private IExpression Exp(Scope scope)
         {
-            return Or(scope);
+            return Assignation(scope);
         }
-        private IExpression Or(Scope<IDSLType> scope)
+        private IExpression Assignation(Scope scope)
+        {
+            IExpression left = TernaryOperation(scope);
+            while (stream.Match(TokenType.VariableAssigmnet, TokenType.SumAssigment,
+                TokenType.MinusAssigment))
+            {
+                switch (stream.CurrentToken.Type)
+                {
+                    case TokenType.VariableAssigmnet:
+                        stream.Eat(TokenType.VariableAssigmnet);
+                        left = new Assignation(left, Assignation(scope));
+                        break;
+                    case TokenType.SumAssigment:
+                        stream.Eat(TokenType.SumAssigment);
+                        left = new Assignation(left, new PlusOperation(left, Assignation(scope)));
+                        break;
+                    case TokenType.MinusAssigment:
+                        stream.Eat(TokenType.SumAssigment);
+                        left = new Assignation(left, new MinusOperation(left, Assignation(scope)));
+                        break;
+
+                }
+
+            }
+
+            return left;
+        }
+        private IExpression TernaryOperation(Scope scope)
+        {
+            IExpression condition = Or(scope);
+            if (stream.Match(TokenType.Questioning))
+            {
+                stream.Eat(TokenType.Questioning);
+                IExpression trueOption = Exp(scope);
+                stream.Eat(TokenType.PropertyAssigment);
+                IExpression falseOption = Exp(scope);
+                return new TernaryExpression(condition, trueOption, falseOption);
+            }
+            return condition;
+        }
+        private IExpression Or(Scope scope)
         {
             IExpression left = And(scope);
             while (stream.Match(TokenType.Or))
@@ -36,7 +80,7 @@ namespace DSL.Parser
             }
             return left;
         }
-        private IExpression And(Scope<IDSLType> scope)
+        private IExpression And(Scope scope)
         {
             IExpression left = Equality(scope);
             while (stream.Match(TokenType.And))
@@ -46,7 +90,7 @@ namespace DSL.Parser
             }
             return left;
         }
-        private IExpression Equality(Scope<IDSLType> scope)
+        private IExpression Equality(Scope scope)
         {
             IExpression left = Compairson(scope);
             while (stream.Match(TokenType.Equal, TokenType.NotEqual))
@@ -65,34 +109,53 @@ namespace DSL.Parser
             }
             return left;
         }
-        private IExpression Compairson(Scope<IDSLType> scope)
+        private IExpression Compairson(Scope scope)
         {
-            IExpression left = Term(scope);
+            IExpression left = Concatenation(scope);
             while (stream.Match(TokenType.Less, TokenType.Greater, TokenType.LessOrEqual, TokenType.GreaterOrEqual))
             {
                 switch (stream.CurrentToken.Type)
                 {
                     case TokenType.Less:
                         stream.Eat(TokenType.Less);
-                        left = new Less(left, Term(scope));
+                        left = new Less(left, Concatenation(scope));
                         break;
                     case TokenType.LessOrEqual:
                         stream.Eat(TokenType.LessOrEqual);
-                        left = new LessOrEqual(left, Term(scope));
+                        left = new LessOrEqual(left, Concatenation(scope));
                         break;
                     case TokenType.Greater:
                         stream.Eat(TokenType.Greater);
-                        left = new Greater(left, Term(scope));
+                        left = new Greater(left, Concatenation(scope));
                         break;
                     case TokenType.GreaterOrEqual:
                         stream.Eat(TokenType.GreaterOrEqual);
-                        left = new GreaterOrEqual(left, Term(scope));
+                        left = new GreaterOrEqual(left, Concatenation(scope));
                         break;
                 }
             }
             return left;
         }
-        private IExpression Term(Scope<IDSLType> scope)
+        private IExpression Concatenation(Scope scope)
+        {
+            IExpression left = Term(scope);
+            while (stream.Match(TokenType.Concatenation, TokenType.ConcatenationWithSpaces))
+            {
+                switch (stream.CurrentToken.Type)
+                {
+                    case TokenType.Concatenation:
+                        stream.Eat(TokenType.Concatenation);
+                        left = new ConcatenationOperation(left, Term(scope));
+                        break;
+                    case TokenType.ConcatenationWithSpaces:
+                        stream.Eat(TokenType.ConcatenationWithSpaces);
+                        left = new ConcatenationWithSpacesOperation(left, Term(scope));
+                        break;
+                }
+            }
+            return left;
+        }
+        private IExpression Term(Scope scope)
         {
             IExpression left = Factor(scope);
             while (stream.Match(TokenType.Sum, TokenType.Minus))
@@ -107,14 +170,15 @@ namespace DSL.Parser
                         stream.Eat(TokenType.Minus);
                         left = new MinusOperation(left, Factor(scope));
                         break;
+
                 }
             }
             return left;
         }
-        private IExpression Factor(Scope<IDSLType> scope)
+        private IExpression Factor(Scope scope)
         {
             IExpression left = Power(scope);
-            while (stream.Match(TokenType.Star, TokenType.Slash))
+            while (stream.Match(TokenType.Star, TokenType.Slash, TokenType.Modulo))
             {
                 switch (stream.CurrentToken.Type)
                 {
@@ -126,11 +190,15 @@ namespace DSL.Parser
                         stream.Eat(TokenType.Slash);
                         left = new DivideOperation(left, Power(scope));
                         break;
+                    case TokenType.Modulo:
+                        stream.Eat(TokenType.Modulo);
+                        left = new ModuloOperation(left, Power(scope));
+                        break;
                 }
             }
             return left;
         }
-        private IExpression Power(Scope<IDSLType> scope)
+        private IExpression Power(Scope scope)
         {
             IExpression left = Unary(scope);
             while (stream.Match(TokenType.Power))
@@ -140,87 +208,74 @@ namespace DSL.Parser
             }
             return left;
         }
-        private IExpression Unary(Scope<IDSLType> scope)
+        private IExpression Unary(Scope scope)
         {
             Token current = stream.CurrentToken;
             switch (current.Type)
             {
                 case TokenType.Minus:
                     stream.Eat(TokenType.Minus);
-                    return new OppositeOperator(DotChainingPattern(scope));
+                    return new OppositeOperator(FieldAcces(scope));
                 case TokenType.Not:
                     stream.Eat(TokenType.Not);
-                    return new NotOperation(DotChainingPattern(scope));
+                    return new NotOperation(FieldAcces(scope));
                 default:
-                    return DotChainingPattern(scope);
+                    return FieldAcces(scope);
             }
         }
-        private IExpression DotChainingPattern(Scope<IDSLType> scope)
+        private IExpression FieldAcces(Scope scope)
         {
             IExpression left = Atom(scope);
-            while (stream.Match(TokenType.dot, TokenType.OpenSquareBracket))
+            while (stream.Match(TokenType.dot, TokenType.OpenSquareBracket, TokenType.Decrement, TokenType.Increment))
             {
-                if (stream.Match(TokenType.OpenSquareBracket))
+                if (stream.MatchPrefix(  // .id'('
+                    TokenType.dot, TokenType.Identifier,
+                    TokenType.OpenParenthesis)
+                    )
                 {
-                    stream.Eat(TokenType.OpenSquareBracket);
-                    IExpression index = Exp(scope);
-                    stream.Eat(TokenType.ClosedSquareBracket);
-                    if (stream.Match(TokenType.VariableAssigmnet))
-                    {
-                        stream.Eat(TokenType.VariableAssigmnet);
-                        IExpression value = Exp(scope);
-                        left = new FunctionCall(left, "Set", new List<IExpression> { index, value });
-                    }
-                    else
-                    {
-                        left = new FunctionCall(left, "Get", new List<IExpression> { index });
-                    }
+                    left = FunctionCall(left, scope);
                 }
-                else
+                else if (stream.MatchPrefix
+                    (TokenType.dot, TokenType.Identifier)) //.id
                 {
-                    stream.Eat(TokenType.dot);
-                    string method_or_propertyID = stream.Eat(TokenType.Identifier).Value;
-                    if (stream.Match(TokenType.OpenParenthesis))
-                    {
-                        List<IExpression> args;
-                        stream.Eat(TokenType.OpenParenthesis);
-                        if (stream.Match(TokenType.ClosedParenthesis))
-                        {
-                            args = new List<IExpression>();
-                        }
-                        else
-                        {
-                            args = GetListOfExpressions(scope);
-                        }
-                        stream.Eat(TokenType.ClosedParenthesis);
-                        left = new FunctionCall(left, method_or_propertyID, args);
-                    }
-                    else
-                    {
-                        if (stream.Match(TokenType.VariableAssigmnet))
-                        {
-                            stream.Eat(TokenType.VariableAssigmnet);
-                            left = new PropertySetter(left, method_or_propertyID, Exp(scope));
-                        }
-                        else
-                        {
-                            left = new PropertyGetter(left, method_or_propertyID);
-                        }
-
-                    }
+                    left = PropertyGetter(left, scope);
+                }
+                else if (stream.Match(TokenType.Increment))
+                {
+                    left = Increment(left, scope);
+                }
+                else if (stream.Match(TokenType.Decrement))
+                {
+                    left = Decrement(left, scope);
+                }
+                else //[
+                {
+                    left = Indexer(left, scope);
                 }
             }
             return left;
         }
-        private IExpression Atom(Scope<IDSLType> scope)
+        private IExpression Decrement(IExpression left, Scope scope)
+        {
+            stream.Eat(TokenType.Decrement);
+            return new DecrementOperator(left);
+        }
+        private IExpression Increment(IExpression left, Scope scope)
+        {
+            stream.Eat(TokenType.Increment);
+            return new IncrementOperation(left);
+        }
+        private IExpression Atom(Scope scope)
         {
             Token current = stream.CurrentToken;
             switch (current.Type)
             {
+                case TokenType.NumberType or TokenType.BooleanType or TokenType.StringType:
+                    return new TypeRestrictionExpression(stream.Eat(TokenType.NumberType, TokenType.BooleanType, TokenType.StringType).Value);
                 case TokenType.OpenCurlyBracket:
                     return AnonimusTypeExpression(scope);
                 case TokenType.String:
-                    return new SimpleExpression((Evaluator.LenguajeTypes.String)stream.Eat(TokenType.String).Value);
+                    return new SimpleExpression(ParseToken(stream.Eat(TokenType.String)));
                 case TokenType.Number:
                     return new SimpleExpression(ParseToken(stream.Eat(TokenType.Number)));
                 case TokenType.Bool:
@@ -234,7 +289,7 @@ namespace DSL.Parser
                         TokenType.OpenParenthesis,
                         TokenType.ClosedParenthesis
                         )
-                        || 
+                        ||
                         stream.MatchPrefix
                         (TokenType.OpenParenthesis,
                         TokenType.Identifier,
@@ -253,15 +308,48 @@ namespace DSL.Parser
                     {
                         return Group(scope);
                     }
-                  
+
                 case TokenType.OpenSquareBracket:
                     return List(scope);
                 default:
-                    throw new Exception("Expression expceted");
+                    throw new Exception($"Expression expceted in{stream.CurrentToken.Pos}");
             }
         }
-        private IExpression LambdaExpression(Scope<IDSLType> scope)
+        #region Auxiliar Methods
+        private IExpression Indexer(IExpression left, Scope scope)
         {
+            stream.Eat(TokenType.OpenSquareBracket);
+            IExpression exp = Exp(scope);
+            stream.Eat(TokenType.ClosedSquareBracket);
+            return new PropertyGetter(left, "Indexer", new List<IExpression> { exp });
+
+        }
+        private IExpression PropertyGetter(IExpression left, Scope scope)
+        {
+            stream.Eat(TokenType.dot);
+            string ID = stream.Eat(TokenType.Identifier).Value;
+            return new PropertyGetter(left, ID);
+        }
+        private IExpression FunctionCall(IExpression left, Scope scope)
+        {
+            stream.Eat(TokenType.dot);
+            string id = stream.Eat(TokenType.Identifier).Value;
+            List<IExpression> args;
+            stream.Eat(TokenType.OpenParenthesis);
+            if (stream.Match(TokenType.ClosedParenthesis))
+            {
+                args = new();
+            }
+            else
+            {
+                args = GetListOfExpressions(scope);
+            }
+            stream.Eat(TokenType.ClosedParenthesis);
+            return new FunctionCall(left, id, args);
+        }
+        private IExpression LambdaExpression(Scope scope)
+        {
+            Scope child = new(scope);
             List<string> parameters = new();
             if (stream.MatchPrefix(TokenType.OpenParenthesis,
                 TokenType.ClosedParenthesis))
@@ -282,48 +370,23 @@ namespace DSL.Parser
             stream.Eat(TokenType.FunctionAssigment);
             if (stream.Match(TokenType.OpenCurlyBracket))
             {
-                stream.Eat(TokenType.OpenCurlyBracket);
-                InstructionBlock instructionBlock = ParseInstructionBlock(scope);
-                stream.Eat(TokenType.ClosedCurlyBracket);
+                InstructionBlock instructionBlock = InstructionBlock(scope);
                 return new ActionExpression(parameters.ToArray(), instructionBlock);
             }
             else
             {
-                IExpression exp = Exp(scope);
-                return new DelegateExpression(parameters.ToArray(),exp);
+                IExpression exp = Exp(child);
+                return new DelegateExpression(parameters.ToArray(), exp, child);
             }
         }
-        private IExpression Delegate(Scope<IDSLType> scope)
-        {
-            List<string> parameters = new();
-            if (stream.MatchPrefix(TokenType.OpenParenthesis,
-                TokenType.ClosedParenthesis))
-            {
-                stream.Eat(TokenType.OpenParenthesis, TokenType.ClosedParenthesis);
-            }
-            else
-            {
-                stream.Eat(TokenType.OpenParenthesis);
-                parameters.Add(stream.Eat(TokenType.Identifier).Value);
-                while (stream.Match(TokenType.Comma))
-                {
-                    stream.Eat(TokenType.Comma);
-                    parameters.Add(stream.Eat(TokenType.Identifier).Value);
-                }
-                stream.Eat(TokenType.ClosedParenthesis);
-            }
-            stream.Eat(TokenType.FunctionAssigment);
-            IExpression expression = Exp(scope);
-            return expression;
-        }
-        private IExpression Group(Scope<IDSLType> scope)
+        private IExpression Group(Scope scope)
         {
             stream.Eat(TokenType.OpenParenthesis);
             IExpression res = Exp(scope);
             stream.Eat(TokenType.ClosedParenthesis);
             return res;
         }
-        private IExpression List(Scope<IDSLType> scope)
+        private IExpression List(Scope scope)
         {
             List<IExpression> list;
             stream.Eat(TokenType.OpenSquareBracket);
@@ -339,7 +402,7 @@ namespace DSL.Parser
             }
             return new ListExpression(list);
         }
-        private List<IExpression> GetListOfExpressions(Scope<IDSLType> scope)
+        private List<IExpression> GetListOfExpressions(Scope scope)
         {
             List<IExpression> list = new()
             {
@@ -353,36 +416,22 @@ namespace DSL.Parser
 
             return list;
         }
-        public IDSLType ParseToken(Token t)
+        public object ParseToken(Token t)
         {
-            if (t.Type == TokenType.Number)
+            if (t.Type == TokenType.String)
             {
-                Number res = 0;
-                if (int.TryParse(t.Value, out var n))
-                {
-                    res = n;
-                }
-                else if (float.TryParse(t.Value, out var f))
-                {
-                    res = f;
-                }
-                else if (double.TryParse(t.Value, out var d))
-                {
-                    res = d;
-                }
-                return res;
+                return t.Value;
             }
-            else if (t.Type == TokenType.Bool)
+            else if (t.Type == TokenType.Number)
             {
-                return (Bool)bool.Parse(t.Value);
+                return double.Parse(t.Value);
             }
             else
             {
-                throw new NotImplementedException();
+                return bool.Parse(t.Value);
             }
-
         }
-        private IExpression AnonimusTypeExpression(Scope<IDSLType> scope) 
+        private IExpression AnonimusTypeExpression(Scope scope)
         {
             Dictionary<string, IExpression> properties = new();
             if (stream.MatchPrefix(TokenType.OpenCurlyBracket,
@@ -395,7 +444,7 @@ namespace DSL.Parser
             else
             {
                 stream.Eat(TokenType.OpenCurlyBracket);
-                Property(properties,scope);
+                Property(properties, scope);
                 while (stream.Match(TokenType.Comma))
                 {
                     stream.Eat(TokenType.Comma);
@@ -405,12 +454,13 @@ namespace DSL.Parser
                 return new AnonimusTypeExpression(properties);
             }
         }
-        private void Property(Dictionary<string, IExpression> properties,Scope<IDSLType> scope)
+        private void Property(Dictionary<string, IExpression> properties, Scope scope)
         {
             string id = stream.Eat(TokenType.Identifier).Value;
             stream.Eat(TokenType.PropertyAssigment);
             IExpression value = Exp(scope);
             properties.Add(id, value);
         }
+        #endregion
     }
 }

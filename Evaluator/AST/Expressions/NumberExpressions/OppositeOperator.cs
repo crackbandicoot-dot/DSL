@@ -1,7 +1,4 @@
-﻿using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.LenguajeTypes;
-
-namespace DSL.Evaluator.AST.Expressions.NumberExpressions
+﻿namespace DSL.Evaluator.AST.Expressions.NumberExpressions
 {
     internal class OppositeOperator : UnaryExpression
     {
@@ -9,13 +6,9 @@ namespace DSL.Evaluator.AST.Expressions.NumberExpressions
         {
         }
 
-        protected override IDSLType Operate(IDSLType operand)
+        protected override object Operate(object operand)
         {
-            if (operand is Number o)
-            {
-                return -o;
-            }
-            throw new ArgumentException("Cannot apply the operator - with that type");
+            return -(double)(operand);
         }
     }
 }

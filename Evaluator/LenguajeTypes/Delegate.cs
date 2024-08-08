@@ -1,33 +1,34 @@
 ﻿using DSL.Evaluator.AST.Expressions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSL.Evaluator.LenguajeTypes
 {
-    internal class Delegate : IDSLType
+    public class Delegate
     {
         private readonly IExpression expression;
+        private readonly Scope.Scope scope;
 
-        public Delegate(string[] identifiers,IExpression expression) 
+        internal Delegate(string[] identifiers, IExpression expression, Scope.Scope scope)
         {
             Identifiers = identifiers;
             this.expression = expression;
+            this.scope = scope;
         }
 
-        public IDSLType Invoke(params IDSLType[] parameters)
+        public object Invoke(params object[] parameters)
         {
-            //TODO
-            throw new NotImplementedException();
+            if (Identifiers.Length == parameters.Length)
+            {
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    scope.Declare(Identifiers[i], parameters[i]);
+                }
+                return expression.Evaluate();
+            }
+            else
+            {
+                throw new Exception("Amount of parameters doesn't match");
+            }
         }
         public string[] Identifiers { get; }
-
-        public bool Equals(IDSLType? other)
-        {
-            //TODO
-            throw new NotImplementedException();
-        }
     }
 }

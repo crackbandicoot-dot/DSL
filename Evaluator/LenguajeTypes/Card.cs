@@ -1,42 +1,28 @@
 ﻿// Ignore Spelling: lexer DSL
-using DSL.Evaluator.AST.Instructions.ObjectDeclaration;
-
 namespace DSL.Evaluator.LenguajeTypes
 {
-    internal class Card : IDSLObject
+    public class Card
+
     {
-       private AnonimusObject CardBody { get; }
-
-       public String Name => (String)CardBody.Properties["Name"];
-       public String Faction => (String)CardBody.Properties["Faction"];
-       public List Range => (List)CardBody.Properties["Range"];
-       public Number Power => (Number)CardBody.Properties["Power"];
-       public List OnActivation => (List)CardBody.Properties["OnActivation"];
-       
-       public void ActivateEffect(IContext context, Context declaredEffects)
-       {
-            foreach (var effectInfo in OnActivation)
-            {
-                var info = effectInfo as AnonimusObject;
-                String effectName = (String)info.UseDotNotation("Effect.Name");
-                if(declaredEffects.Acced(effectName) is Effect e)
-                {
-                    e.Action.Invoke(context);
-                }
-                else
-                {
-                    
-                }
-            }
+#pragma warning disable CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        public string Name { get; set; }
+#pragma warning restore CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+#pragma warning disable CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        public string Faction { get; set; }
+#pragma warning restore CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+#pragma warning disable CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        public string Type { get; set; }
+#pragma warning restore CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+#pragma warning disable CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        public List<string> Range { get; set; }
+#pragma warning restore CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        public double Power { get; set; }
+#pragma warning disable CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        public List<OnActivationObject> OnActivation { get; set; }
+#pragma warning restore CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        public void ActivateEffect(IContext gameContext)
+        {
+            OnActivation.ForEach(onActivation => onActivation.Activate(gameContext));
         }
-       public Card(AnonimusObject cardBody)
-       {
-            CardBody = cardBody;
-       }
-       public bool Equals(IDSLType? other)
-       {
-           throw new NotImplementedException();
-       }
     }
-
 }

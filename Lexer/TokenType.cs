@@ -70,6 +70,10 @@ namespace DSL.Lexer
         Source,
         Single,
         Predicate,
-        PostAction
+        PostAction,
+        Questioning,
+        Modulo,
+        SumAssigment,
+        MinusAssigment
     }
 }

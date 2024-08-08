@@ -1,26 +1,48 @@
-﻿using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.Scope;
-using DSL.Lexer;
-using DSL.Evaluator.AST.Expressions;
+﻿using DSL.Evaluator.AST.Expressions;
 using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.AST.Instructions.Statements;
 using DSL.Evaluator.AST.Instructions.Statements.ConditionalStatements;
 using DSL.Evaluator.AST.Instructions.Statements.LoopStatements;
 using DSL.Evaluator.AST.Instructions.Statements.SimpleStatements;
+using DSL.Evaluator.Scope;
+using DSL.Lexer;
 
 namespace DSL.Parser
 {
     internal partial class Parser
     {
-        private VariableDeclarationStatement ParseVariableDeclaration(Scope<IDSLType> scope)
+        private InstructionBlock InstructionBlock(Scope parentScope)
         {
-            string id = stream.Eat(TokenType.Identifier).Value;
-            stream.Eat(TokenType.VariableAssigmnet);
-            IExpression exp = Exp(scope);
-            stream.Eat(TokenType.SemiColon);
-            return new VariableDeclarationStatement(scope, id, exp);
+            List<IInstruction> instructions = new();
+            Scope scope = new(parentScope);
+            if (stream.Match(TokenType.OpenCurlyBracket))
+            {
+                stream.Eat(TokenType.OpenCurlyBracket);
+                while (!stream.Match(TokenType.ClosedCurlyBracket, TokenType.EOF))
+                {
+                    instructions.Add(Statement(scope));
+                }
+                stream.Eat(TokenType.ClosedCurlyBracket);
+            }
+            else
+            {
+                instructions.Add(Statement(scope));
+            }
+            return new InstructionBlock(instructions, scope);
         }
-        private PrintStatement ParsePRINT(Scope<IDSLType> scope)
+        private IInstruction Statement(Scope scope)
+        {
+            return stream.CurrentToken.Type switch
+            {
+                TokenType.OpenCurlyBracket => InstructionBlock(scope),
+                TokenType.Print => Print(scope),
+                TokenType.If => If(scope),
+                TokenType.While => While(scope),
+                TokenType.For => For(scope),
+                _ => ExpressionStatement(scope),
+            };
+        }
+        private PrintStatement Print(Scope scope)
         {
             stream.Eat(TokenType.Print);
             stream.Eat(TokenType.OpenParenthesis);
@@ -29,99 +51,47 @@ namespace DSL.Parser
             stream.Eat(TokenType.SemiColon);
             return new PrintStatement(str);
         }
-        private ForStatement ParseFor(Scope<IDSLType> scope)
+        private ForStatement For(Scope scope)
         {
             stream.Eat(TokenType.For);
-            stream.Eat(TokenType.OpenParenthesis);
+            // stream.Eat(TokenType.OpenParenthesis);
             string forVariable = stream.Eat(TokenType.Identifier).Value;
             stream.Eat(TokenType.In);
             IExpression list = Exp(scope);
-            stream.Eat(TokenType.ClosedParenthesis);
-            stream.Eat(TokenType.OpenCurlyBracket);
-            InstructionBlock instructionBlock = ParseInstructionBlock(scope);
-            stream.Eat(TokenType.ClosedCurlyBracket);
+            // stream.Eat(TokenType.ClosedParenthesis);
+            InstructionBlock instructionBlock = InstructionBlock(scope);
             return new ForStatement(forVariable, list, instructionBlock, scope);
         }
-        private WhileStatement ParseWHILE(Scope<IDSLType> scope)
+        private WhileStatement While(Scope scope)
         {
             stream.Eat(TokenType.While);
             stream.Eat(TokenType.OpenParenthesis);
             IExpression condition = Exp(scope);
             stream.Eat(TokenType.ClosedParenthesis);
-            stream.Eat(TokenType.OpenCurlyBracket);
-            InstructionBlock block = ParseInstructionBlock(scope);
-            stream.Eat(TokenType.ClosedCurlyBracket);
+            InstructionBlock block = InstructionBlock(scope);
             return new WhileStatement(condition, block);
         }
-        private IfStatement ParseIF(Scope<IDSLType> scope)
+        private IfStatement If(Scope scope)
         {
             stream.Eat(TokenType.If);
             stream.Eat(TokenType.OpenParenthesis);
             IExpression condition = Exp(scope);
             stream.Eat(TokenType.ClosedParenthesis);
-            stream.Eat(TokenType.OpenCurlyBracket);
-            InstructionBlock block = ParseInstructionBlock(scope);
-            stream.Eat(TokenType.ClosedCurlyBracket);
+            InstructionBlock block = InstructionBlock(scope);
             return new IfStatement(condition, block);
         }
-        private InstructionBlock ParseInstructionBlock(Scope<IDSLType>? parentScope)
+        private IInstruction ExpressionStatement(Scope scope)
         {
-            List<IInstruction> instructions = new();
-            Scope<IDSLType> scope = new(parentScope);
-            TokenType[] instructionBlockAllowedTokens = new TokenType[]
+            var exp = Exp(scope);
+            if (exp is IInstruction instruction)
             {
-                TokenType.If,
-                TokenType.While,
-                TokenType.Print,
-                TokenType.Identifier,
-                TokenType.For,
-                TokenType.Number,
-                TokenType.String,
-                TokenType.OpenSquareBracket,
-                TokenType.Bool,
-                TokenType.OpenParenthesis,
-                TokenType.Not,
-                TokenType.Minus
-            };
-            while (stream.Match(instructionBlockAllowedTokens))
-            {
-                switch (stream.CurrentToken.Type)
-                {
-                    case TokenType.Print:
-                        instructions.Add(ParsePRINT(scope));
-                        break;
-                    case TokenType.If:
-                        instructions.Add(ParseIF(scope));
-                        break;
-                    case TokenType.While:
-                        instructions.Add(ParseWHILE(scope));
-                        break;
-                    case TokenType.For:
-                        instructions.Add(ParseFor(scope));
-                        break;
-                    case TokenType.Identifier:
-                        switch (stream.LookNextToken().Type)
-                        {
-                            case TokenType.VariableAssigmnet:
-                                instructions.Add(ParseVariableDeclaration(scope));
-                                break;
-                            case TokenType.dot or TokenType.OpenSquareBracket:
-                                IExpression exp = Exp(scope);
-                                if (exp is IInstruction I)
-                                {
-                                    instructions.Add(I);
-                                    stream.Eat(TokenType.SemiColon);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    default:
-                        throw new Exception("Just statements, calls, asigments, increasing and decrasing operators are valid instructions");
-                }
+                stream.Eat(TokenType.SemiColon);
+                return instruction;
             }
-            return new InstructionBlock(instructions, scope);
+            else
+            {
+                throw new Exception($"The expression {exp} is not a valid statement");
+            }
         }
     }
 }

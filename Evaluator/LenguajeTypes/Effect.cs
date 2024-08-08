@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace DSL.Evaluator.LenguajeTypes
 {
-    internal class Effect : IDSLObject
+    internal class Effect
     {
-        public AnonimusObject EffectBody { get; }
-        public String Name => (String)EffectBody.Properties["Name"];
-        public Action Action => (Action)EffectBody.Properties["Action"];
-        public Effect(AnonimusObject effectBody)
+       public Effect()
         {
-            EffectBody = effectBody;
+            Params = new();
         }
-        
-        public bool Equals(IDSLType? other)
-        {
-            throw new NotImplementedException();
-        }
+        public string Name { get; internal set; }
+        public Action Action { get; internal set; }
+        public Dictionary<string, TypeRestriction> Params { get; internal set; }
     }
 }

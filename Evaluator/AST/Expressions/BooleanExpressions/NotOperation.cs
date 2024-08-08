@@ -1,8 +1,4 @@
-﻿using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
-
-namespace DSL.Evaluator.AST.Expressions.BooleanExpressions
+﻿namespace DSL.Evaluator.AST.Expressions.BooleanExpressions
 {
     internal class NotOperation : UnaryExpression
     {
@@ -10,13 +6,9 @@ namespace DSL.Evaluator.AST.Expressions.BooleanExpressions
         {
         }
 
-        protected override IDSLType Operate(IDSLType operand)
+        protected override object Operate(object operand)
         {
-            if (operand is Bool o)
-            {
-                return !o;
-            }
-            throw new ArgumentException("Cannot apply the operator ! with the operand");
+            return !(bool)operand;
         }
     }
 }

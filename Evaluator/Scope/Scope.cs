@@ -1,14 +1,14 @@
 ﻿namespace DSL.Evaluator.Scope
 {
-    internal class Scope<T>
+    internal class Scope
     {
-        private readonly Dictionary<string, T> _variables = new();
-        public readonly Scope<T>? _parentScope;
-        public Scope(Scope<T>? parentScope)
+        private readonly Dictionary<string, object> _variables = new();
+        public readonly Scope? _parentScope;
+        public Scope(Scope? parentScope)
         {
             _parentScope = parentScope;
         }
-        public Scope<T>? ScopeInWhichIsDeclared(string identifier)
+        public Scope? ScopeInWhichIsDeclared(string identifier)
         {
             for (var currentScope = this; currentScope != null; currentScope = currentScope._parentScope)
             {
@@ -16,9 +16,9 @@
             }
             return null;
         }
-        public void Declare(string identifier, T value)
+        public void Declare(string identifier, object value)
         {
-            Scope<T>? scopeInWichIsDeclared = ScopeInWhichIsDeclared(identifier);
+            Scope? scopeInWichIsDeclared = ScopeInWhichIsDeclared(identifier);
             if (scopeInWichIsDeclared != null)
             {
                 scopeInWichIsDeclared._variables[identifier] = value;
@@ -28,9 +28,9 @@
                 _variables[identifier] = value;
             }
         }
-        public T GetFromHierarchy(string identifier)
+        public object GetFromHierarchy(string identifier)
         {
-            if (_variables.TryGetValue(identifier, out T? value))
+            if (_variables.TryGetValue(identifier, out object? value))
             {
                 return value;
             }
@@ -38,7 +38,7 @@
             {
                 return _parentScope.GetFromHierarchy(identifier);
             }
-            throw new Exception($"Variable'{identifier}' not found");
+            throw new Exception($"Variable '{identifier}' not found");
         }
     }
 }

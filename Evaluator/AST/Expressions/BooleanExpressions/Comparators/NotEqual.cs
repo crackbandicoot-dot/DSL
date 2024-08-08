@@ -1,8 +1,4 @@
-﻿using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.LenguajeTypes.DSL.Evaluator.LenguajeTypes;
-
-namespace DSL.Evaluator.AST.Expressions.BooleanExpressions.Comparators
+﻿namespace DSL.Evaluator.AST.Expressions.BooleanExpressions.Comparators
 {
     internal class NotEqual : BinaryExpression
     {
@@ -10,9 +6,9 @@ namespace DSL.Evaluator.AST.Expressions.BooleanExpressions.Comparators
         {
         }
 
-        protected override IDSLType Operate(IDSLType left, IDSLType right)
+        protected override object Operate(object left, object right)
         {
-            Bool res = !left.Equals(right);
+            object res = !left.Equals(right);
             return res;
         }
     }

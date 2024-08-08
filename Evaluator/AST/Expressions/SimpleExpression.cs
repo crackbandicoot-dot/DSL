@@ -1,22 +1,13 @@
-﻿using DSL.Errors;
-using DSL.Evaluator.LenguajeTypes;
-
-namespace DSL.Evaluator.AST.Expressions
+﻿namespace DSL.Evaluator.AST.Expressions
 {
     internal class SimpleExpression : IExpression
     {
-        private readonly IDSLType value;
-        public SimpleExpression(IDSLType value)
+        private readonly object value;
+        public SimpleExpression(object value)
         {
             this.value = value;
         }
-
-        public bool CheckSemantics(List<Error> compilationErrors)
-        {
-            return true;
-        }
-
-        public IDSLType Evaluate() => value;
+        public object Evaluate() => value;
     }
 
 }

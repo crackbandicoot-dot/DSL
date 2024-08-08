@@ -1,34 +1,22 @@
 ﻿using DSL.Evaluator.AST.Instructions.Statements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSL.Evaluator.LenguajeTypes
 {
-    internal class Action : IDSLType
+    internal class Action
     {
         private readonly string[] parametersIdentifiers;
-        private readonly InstructionBlock instructionBlock;
+        public readonly InstructionBlock instructionBlock;
 
         public Action(string[] parametersIdentifiers, InstructionBlock instructionBlock)
         {
             this.parametersIdentifiers = parametersIdentifiers;
             this.instructionBlock = instructionBlock;
         }
-
-        public bool Equals(IDSLType? other)
+        public void Invoke(params object[] parametersValues)
         {
-            //TODO
-            throw new NotImplementedException();
-        }
-
-        public void Invoke(params IDSLType[] parametersValues)
-        {
-            if (parametersIdentifiers.Length!=parametersValues.Length)
+            if (parametersIdentifiers.Length != parametersValues.Length)
             {
-                throw new Exception($"This methods gets {parametersIdentifiers.Length} parameters");   
+                throw new Exception($"This methods gets {parametersIdentifiers.Length} parameters");
             }
             else
             {
@@ -38,8 +26,8 @@ namespace DSL.Evaluator.LenguajeTypes
                         parametersIdentifiers[i],
                         parametersValues[i]
                        );
-                    instructionBlock.Execute();
                 }
+                instructionBlock.Execute();
             }
         }
 

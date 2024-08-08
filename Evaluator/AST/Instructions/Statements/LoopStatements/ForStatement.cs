@@ -1,9 +1,4 @@
 ﻿using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.AST.Instructions;
-using DSL.Evaluator.AST.Instructions.Statements;
-using DSL.Evaluator.LenguajeTypes;
-using DSL.Evaluator.Scope;
-
 namespace DSL.Evaluator.AST.Instructions.Statements.LoopStatements
 {
     internal class ForStatement : IInstruction
@@ -11,30 +6,22 @@ namespace DSL.Evaluator.AST.Instructions.Statements.LoopStatements
         private readonly string variableIdentifier;
         private readonly IExpression list;
         private readonly InstructionBlock instructions;
-        private readonly Scope<IDSLType> scope;
+    
 
-        public ForStatement(string variableIdentifier, IExpression list, InstructionBlock instructions, Scope<IDSLType> scope)
+        public ForStatement(string variableIdentifier, IExpression list, InstructionBlock instructions, Scope.Scope scope)
         {
             this.variableIdentifier = variableIdentifier;
             this.list = list;
             this.instructions = instructions;
-            this.scope = scope;
+          
         }
         public void Execute()
         {
-            IDSLType exp = list.Evaluate();
-            if (exp is List l)
+            List<object> list = ((IEnumerable<object>)this.list.Evaluate()).ToList();
+            for (int i = 0; i < list.Count; i++)
             {
-                Number length = l.Count;
-                for (int i = 0; i < length; i++)
-                {
-                    instructions.ScopeVariables.Declare(variableIdentifier, l.Get(i));
-                    instructions.Execute();
-                }
-            }
-            else
-            {
-                throw new Exception($"You cannot iterate over a {exp.GetType()}");
+                instructions.ScopeVariables.Declare(variableIdentifier, list[i]);
+                instructions.Execute();
             }
         }
     }

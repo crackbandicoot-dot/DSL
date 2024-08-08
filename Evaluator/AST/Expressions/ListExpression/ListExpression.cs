@@ -1,7 +1,4 @@
 ﻿// Ignore Spelling: exps
-using DSL.Evaluator.AST.Expressions;
-using DSL.Evaluator.LenguajeTypes;
-
 namespace DSL.Evaluator.AST.Expressions.ListExpression
 {
     internal class ListExpression : IExpression
@@ -11,14 +8,7 @@ namespace DSL.Evaluator.AST.Expressions.ListExpression
         {
             this.exps = exps;
         }
-        public IDSLType Evaluate()
-        {
-            List res = new();
-            foreach (IExpression exp in exps)
-            {
-                res.Add(exp.Evaluate());
-            }
-            return res;
-        }
+        public object Evaluate()
+        => exps.Select(x => x.Evaluate()).ToList();
     }
 }
