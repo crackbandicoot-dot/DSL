@@ -8,9 +8,9 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
         private static readonly string[] allowedValues = new[] {"Gold",
             "Silver","Decoy","Leader","Weather","Boost"};
         private readonly Dictionary<string, object> properties;
-        private readonly Card card;
+        private readonly CardInfo card;
 
-        public TypeDeclaration(Card card, Dictionary<string, object> properties)
+        public TypeDeclaration(CardInfo card, Dictionary<string, object> properties)
         {
             this.card = card;
             this.properties = properties;

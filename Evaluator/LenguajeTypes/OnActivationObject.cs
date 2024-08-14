@@ -1,4 +1,6 @@
-﻿namespace DSL.Evaluator.LenguajeTypes
+﻿using DSL.Interfaces;
+
+namespace DSL.Evaluator.LenguajeTypes
 {
     public class OnActivationObject
     {
@@ -13,10 +15,10 @@
             //Select the targets
             Effect.Action.Invoke(GetTargets(gameContext), gameContext);
         }
-        private List<Card> GetTargets(IContext gameContext)
+        private IList<ICard> GetTargets(IContext gameContext)
         {
             var targetsSource = GetSource(gameContext);
-            var filtred = new List<Card>();
+            var filtred = new List<ICard>();
             foreach (var target in targetsSource)
             {
                 if ((bool)Selector.Predicate.Invoke(target))
@@ -26,26 +28,25 @@
             }
             if (Selector.Single)
             {
-                return new List<Card>() { filtred[0] };
+                return new List<ICard>() { filtred[0] };
             }
             return filtred;
         }
-        private List<Card> GetSource(IContext gameContext)
+        private IList<ICard> GetSource(IContext gameContext)
         {
             int player = gameContext.TriggerPlayer;
             int otherPlayer = (player + 1) % 2;
-            Dictionary<string, List<Card>> sourceMap
-            = new()
+            return Selector.Source switch
             {
-                {"hand",gameContext.HandOfPlayer(player)},
-                {"otherHand",gameContext.HandOfPlayer(otherPlayer)},
-                {"deck",gameContext.DeckOfPLayer(player)},
-                {"otherDeck",gameContext.DeckOfPLayer(otherPlayer)},
-                {"field",gameContext.FieldOfPlayer(player)},
-                {"otherField",gameContext.FieldOfPlayer(otherPlayer)},
-                {"board",gameContext.Board}
+                "hand" => gameContext.HandOfPlayer(player),
+                "otherHand" => gameContext.HandOfPlayer(otherPlayer),
+                "deck" => gameContext.DeckOfPlayer(player),
+                "otherDeck" => gameContext.DeckOfPlayer(otherPlayer),
+                "field" => gameContext.FieldOfPlayer(player),
+                "otherField" => gameContext.FieldOfPlayer(otherPlayer),
+                "board" => gameContext.Board,
+                _ => throw new Exception()
             };
-            return sourceMap[Selector.Source];
         }
     }
 }

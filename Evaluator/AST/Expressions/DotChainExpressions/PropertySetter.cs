@@ -24,7 +24,7 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
         public void Execute()
         {
             object l = left.Evaluate();
-            if (l is Card card)
+            if (l is CardInfo card)
             {
                 Dictionary<string, System.Action> propertieSeter = new()
                 {
@@ -42,12 +42,12 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
 #pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
                 propertieSeter[propertyName].Invoke();
             }
-            else if (l is List<Card> list)
+            else if (l is List<CardInfo> list)
             {
 #pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
                 Dictionary<string, System.Action> propertieSeter = new()
                 {
-                    {"Indexer",() => list[(int)args[0].Evaluate()] = (Card)value.Evaluate()},
+                    {"Indexer",() => list[(int)args[0].Evaluate()] = (CardInfo)value.Evaluate()},
                 };
 #pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
                 propertieSeter[propertyName].Invoke();

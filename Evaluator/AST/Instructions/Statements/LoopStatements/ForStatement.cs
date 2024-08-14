@@ -1,4 +1,5 @@
 ﻿using DSL.Evaluator.AST.Expressions;
+using DSL.Evaluator.AST.Expressions.Scope;
 namespace DSL.Evaluator.AST.Instructions.Statements.LoopStatements
 {
     internal class ForStatement : IInstruction
@@ -7,8 +8,7 @@ namespace DSL.Evaluator.AST.Instructions.Statements.LoopStatements
         private readonly IExpression list;
         private readonly InstructionBlock instructions;
     
-
-        public ForStatement(string variableIdentifier, IExpression list, InstructionBlock instructions, Scope.Scope scope)
+        public ForStatement(string variableIdentifier, IExpression list, InstructionBlock instructions, Scope scope)
         {
             this.variableIdentifier = variableIdentifier;
             this.list = list;

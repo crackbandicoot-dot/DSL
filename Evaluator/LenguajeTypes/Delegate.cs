@@ -1,13 +1,14 @@
 ﻿using DSL.Evaluator.AST.Expressions;
+using DSL.Evaluator.AST.Expressions.Scope;
 
 namespace DSL.Evaluator.LenguajeTypes
 {
     public class Delegate
     {
         private readonly IExpression expression;
-        private readonly Scope.Scope scope;
+        private readonly Scope scope;
 
-        internal Delegate(string[] identifiers, IExpression expression, Scope.Scope scope)
+        internal Delegate(string[] identifiers, IExpression expression, Scope scope)
         {
             Identifiers = identifiers;
             this.expression = expression;

@@ -186,7 +186,7 @@ namespace DSL.Lexer
                 }
                 else if (couples[currentToken.Type] != groupTokens.Peek().Type)
                 {
-                    throw new Exception($"Unmacthced {groupTokens.Peek().Value} on {groupTokens.Peek().Type}");
+                    throw new Exception($"Unmacthced {groupTokens.Peek().Value} on {groupTokens.Peek().Pos}");
                 }
                 else
                 {

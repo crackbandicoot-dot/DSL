@@ -5,11 +5,11 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
 {
     internal class OnActivationDeclaration : IInstruction
     {
-        private readonly Card card;
+        private readonly CardInfo card;
         private readonly Dictionary<string, object> properties;
         private readonly Context context;
 
-        public OnActivationDeclaration(Card card, Dictionary<string, object> properties, Context context)
+        public OnActivationDeclaration(CardInfo card, Dictionary<string, object> properties, Context context)
         {
             this.card = card;
             this.properties = properties;

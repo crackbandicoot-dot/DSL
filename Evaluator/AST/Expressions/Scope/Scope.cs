@@ -1,4 +1,4 @@
-﻿namespace DSL.Evaluator.Scope
+﻿namespace DSL.Evaluator.AST.Expressions.Scope
 {
     internal class Scope
     {

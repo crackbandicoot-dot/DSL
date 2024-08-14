@@ -5,10 +5,10 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
 {
     internal class PowerDeclaration : IInstruction
     {
-        private readonly Card card;
+        private readonly CardInfo card;
         private readonly Dictionary<string, object> properties;
 
-        public PowerDeclaration(Card card, Dictionary<string, object> properties)
+        public PowerDeclaration(CardInfo card, Dictionary<string, object> properties)
         {
             this.card = card;
             this.properties = properties;

@@ -9,10 +9,8 @@ using DSL.Lexer;
 
 namespace DSL.Parser
 {
-
-    internal partial class Parser
+    internal partial class ProgramParser
     {
-        // public IInstruction ParseAST() => GwentProgram();
         public GwentProgram GwentProgram()
         {
             Context context = new();
@@ -33,17 +31,13 @@ namespace DSL.Parser
         private CardDeclaration Card(Context context)
         {
             stream.Eat(TokenType.Card);
-#pragma warning disable CS8625 // No se puede convertir un literal NULL en un tipo de referencia que no acepta valores NULL.
             IExpression body = AnonimusTypeExpression(null);
-#pragma warning restore CS8625 // No se puede convertir un literal NULL en un tipo de referencia que no acepta valores NULL.
             return new CardDeclaration(context, body);
         }
         private EffectDeclaration Effect(Context context)
         {
             stream.Eat(TokenType.Effect);
-#pragma warning disable CS8625 // No se puede convertir un literal NULL en un tipo de referencia que no acepta valores NULL.
             IExpression body = AnonimusTypeExpression(null);
-#pragma warning restore CS8625 // No se puede convertir un literal NULL en un tipo de referencia que no acepta valores NULL.
             return new EffectDeclaration(context, body);
         }
     }

@@ -1,15 +1,15 @@
 ﻿using DSL.Evaluator.AST.Expressions;
+using DSL.Evaluator.AST.Expressions.Scope;
 using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.AST.Instructions.Statements;
 using DSL.Evaluator.AST.Instructions.Statements.ConditionalStatements;
 using DSL.Evaluator.AST.Instructions.Statements.LoopStatements;
 using DSL.Evaluator.AST.Instructions.Statements.SimpleStatements;
-using DSL.Evaluator.Scope;
 using DSL.Lexer;
 
 namespace DSL.Parser
 {
-    internal partial class Parser
+    internal partial class ProgramParser
     {
         private InstructionBlock InstructionBlock(Scope parentScope)
         {
@@ -54,11 +54,9 @@ namespace DSL.Parser
         private ForStatement For(Scope scope)
         {
             stream.Eat(TokenType.For);
-            // stream.Eat(TokenType.OpenParenthesis);
             string forVariable = stream.Eat(TokenType.Identifier).Value;
             stream.Eat(TokenType.In);
             IExpression list = Exp(scope);
-            // stream.Eat(TokenType.ClosedParenthesis);
             InstructionBlock instructionBlock = InstructionBlock(scope);
             return new ForStatement(forVariable, list, instructionBlock, scope);
         }

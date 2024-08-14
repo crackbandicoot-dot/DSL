@@ -6,12 +6,12 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration
 {
     public class Context
     {
-        public Dictionary<string, Card> cards;
+        public Dictionary<string, CardInfo> cards;
         private Dictionary<string, Effect> effects;
 
         public Context()
         {
-            cards = new Dictionary<string, Card>();
+            cards = new Dictionary<string, CardInfo>();
             effects = new Dictionary<string, Effect>();
         }
 
@@ -20,7 +20,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration
             return effects.ContainsKey(v);
         }
 
-        internal void Declare(Card card)
+        internal void Declare(CardInfo card)
         {
             cards.Add(card.Name, card);
         }
@@ -28,7 +28,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration
         {
             effects.Add(effect.Name, effect);
         }
-        internal Card GetCard(string cardName)
+        internal CardInfo GetCard(string cardName)
         {
             return cards[cardName];
         }

@@ -7,22 +7,22 @@ using DSL.Evaluator.AST.Expressions.DotChainExpressions;
 using DSL.Evaluator.AST.Expressions.LambdaExpressions;
 using DSL.Evaluator.AST.Expressions.ListExpression;
 using DSL.Evaluator.AST.Expressions.NumberExpressions;
+using DSL.Evaluator.AST.Expressions.Scope;
 using DSL.Evaluator.AST.Expressions.StringExpressions;
 using DSL.Evaluator.AST.Expressions.TernaryExpressions;
 using DSL.Evaluator.AST.Expressions.TypeRestrictionExpression;
 using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.AST.Instructions.Statements;
-using DSL.Evaluator.Scope;
 using DSL.Lexer;
 namespace DSL.Parser
 {
-    internal partial class Parser
+    internal partial class ProgramParser
     {
         private readonly LexerStream stream;
 #pragma warning disable CS0649 // El campo 'Parser.CurrentInstruction' nunca se asigna y siempre tendrá el valor predeterminado null
         public IInstruction? CurrentInstruction;
 #pragma warning restore CS0649 // El campo 'Parser.CurrentInstruction' nunca se asigna y siempre tendrá el valor predeterminado null
-        public Parser(LexerStream stream)
+        public ProgramParser(LexerStream stream)
         {
             this.stream = stream;
         }
@@ -50,7 +50,6 @@ namespace DSL.Parser
                         stream.Eat(TokenType.SumAssigment);
                         left = new Assignation(left, new MinusOperation(left, Assignation(scope)));
                         break;
-
                 }
 
             }

@@ -5,7 +5,7 @@
         private static Dictionary<string, Predicate<object>> checkRestriction =
             new()
             {
-                {"Number",x=>x is double },
+                {"Number",x=>x is double||x is int },
                 {"Boolean",x =>x is bool },
                 {"String", x => x is string },
             };

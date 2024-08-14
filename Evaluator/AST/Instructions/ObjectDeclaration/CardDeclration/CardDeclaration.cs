@@ -18,7 +18,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.NewFolder
         }
         public void Execute()
         {
-            Card card = new();
+            CardInfo card = new();
             var properties = (Dictionary<string, object>)(cardBody.Evaluate());
             var nameDeclaration = new NameDeclaration(card, properties);
             var factionDeclaration = new FactionDeclaration(card, properties);
