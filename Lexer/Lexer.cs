@@ -28,7 +28,7 @@ namespace DSL.Lexer
             {"Boolean",TokenType.BooleanType }
         };
         private char _currentChar => _currentCharIndex > _text.Length - 1 ? '\0' : _text[_currentCharIndex];
-        public Token CurrentToken { get; private set; }
+        internal Token CurrentToken { get; set; }
 
         public Lexer(string text)
         {

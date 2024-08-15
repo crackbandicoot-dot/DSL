@@ -4,6 +4,7 @@ namespace DSL.Evaluator.AST.Instructions.Statements.SimpleStatements
 {
     internal class PrintStatement : IInstruction
     {
+        internal static Action<string> printerFunction;
         private readonly IExpression exp;
 
         public PrintStatement(IExpression exp)
@@ -13,7 +14,7 @@ namespace DSL.Evaluator.AST.Instructions.Statements.SimpleStatements
 
         public void Execute()
         {
-            Console.WriteLine(exp.Evaluate());
+            printerFunction.Invoke(exp.Evaluate().ToString());
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DSL.Evaluator.LenguajeTypes;
+﻿using DSL.Evaluator.AST.Instructions.Statements.SimpleStatements;
+using DSL.Evaluator.LenguajeTypes;
 using DSL.Interfaces;
 using DSL.Lexer;
 
@@ -17,11 +18,12 @@ namespace DSL
         /// </summary>
         /// <param name="programString">string representation of the DSL program</param>
         /// <param name="cardFactory">card factory that will be used to instanciate the cards</param>
+        ///<param name="printFunction">function the compiller wil use in order to execute the print statement</param>
         /// <returns></returns>
-        public static IEnumerable<ICard> Compile(string programString,ICardFactory cardFactory)
+        public static IEnumerable<ICard> Compile(string programString,ICardFactory cardFactory,Action<string> printFunction)
         {
-            
             Parser.ProgramParser parser = new(new LexerStream(programString));
+            PrintStatement.printerFunction = printFunction;
             var program = parser.GwentProgram();
             program.Execute();
             var c = program.Context;

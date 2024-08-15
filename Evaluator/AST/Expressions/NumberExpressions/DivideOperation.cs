@@ -1,4 +1,6 @@
-﻿namespace DSL.Evaluator.AST.Expressions.NumberExpressions
+﻿using DSL.Extensor_Methods;
+
+namespace DSL.Evaluator.AST.Expressions.NumberExpressions
 {
     internal class DivideOperation : BinaryExpression
     {
@@ -10,7 +12,7 @@
         {
             double l = (double)left;
             double r = (double)right;
-            if (double.IsInteger(l) && double.IsInteger(r))
+            if (l.IsInteger() && r.IsInteger())
             {
                 return (int)l / (int)r;
             }

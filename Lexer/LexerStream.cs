@@ -9,7 +9,7 @@ namespace DSL.Lexer
 
         private readonly List<Token> _baseList = new();
         private int _position = 0;
-        public Token CurrentToken { get => Peek(0); }
+        internal Token CurrentToken { get => Peek(0); }
         public LexerStream(string input)
         {
             FullList(new Lexer(input), _baseList);
