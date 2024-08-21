@@ -6,6 +6,9 @@ namespace DSL.Evaluator.LenguajeTypes
 {
     public class OnActivationObject
     {
+        public OnActivationObject() {
+            Params = new();
+        }
         internal Dictionary<string,object> Params { get; set; }
         internal Effect Effect { get; set; }
         public Selector Selector { get; set; }
@@ -31,7 +34,7 @@ namespace DSL.Evaluator.LenguajeTypes
             }
             if (Selector.Single)
             {
-                return new List<ICard>() { filtred[0] };
+                return new List<ICard>() { filtred.Count>0?filtred[0]: new() };
             }
             return filtred;
         }
