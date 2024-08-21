@@ -34,7 +34,7 @@ namespace DSL.Evaluator.LenguajeTypes
             }
             if (Selector.Single)
             {
-                return new List<ICard>() { filtred.Count>0?filtred[0]: new() };
+                return filtred.Count > 0 ? new List<ICard>() { filtred[0]} : new();
             }
             return filtred;
         }
