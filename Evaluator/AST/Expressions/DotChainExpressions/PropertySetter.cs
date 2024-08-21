@@ -1,5 +1,6 @@
 ﻿using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.LenguajeTypes;
+using DSL.Interfaces;
 
 namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
 {
@@ -24,33 +25,30 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
         public void Execute()
         {
             object l = left.Evaluate();
-            if (l is CardInfo card)
+            switch (l)
             {
-                Dictionary<string, System.Action> propertieSeter = new()
-                {
-                    {"Power",() => card.Power=(double)value.Evaluate()},
-                };
-                propertieSeter[propertyName].Invoke();
-            }
-            else if (l is List<object> objList)
-            {
-#pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
-                Dictionary<string, System.Action> propertieSeter = new()
-                {
-                    {"Indexer",() => objList[(int)Math.Floor((double)args[0].Evaluate())] = value.Evaluate()},
-                };
-#pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
-                propertieSeter[propertyName].Invoke();
-            }
-            else if (l is List<CardInfo> list)
-            {
-#pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
-                Dictionary<string, System.Action> propertieSeter = new()
-                {
-                    {"Indexer",() => list[(int)args[0].Evaluate()] = (CardInfo)value.Evaluate()},
-                };
-#pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
-                propertieSeter[propertyName].Invoke();
+                case CardInfo card:
+                    switch (propertyName)
+                    {
+                        case "Power": card.Power = (double)value.Evaluate(); break;
+                        default: throw new Exception($"Propery {propertyName} is not a setable card property");
+                    };
+                    break;
+                case IList<object> objList:
+                    switch (propertyName)
+                    {
+                        case "Indexer": objList[Convert.ToInt32(args[0].Evaluate())] = value.Evaluate(); break;
+                        default: throw new Exception($"Propery {propertyName} is not a setable list property");
+                    }
+
+                    break;
+                case IList<ICard> list:
+                    switch (propertyName)
+                    {
+                        case "Indexer": list[Convert.ToInt32(args[0].Evaluate())] = value.Evaluate() as ICard; break;
+                        default: throw new Exception($"Propery {propertyName} is not a setable list property");
+                    }
+                    break;
             }
         }
     }

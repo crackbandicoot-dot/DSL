@@ -50,8 +50,10 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
                     throw new Exception("Effect instanciation requires a name property");
                 }
             }
-            //TODO parametros del efecto
-
+            else
+            {
+                throw new Exception("OnActivation object requires a Effect property");
+            }
         }
     }
 }

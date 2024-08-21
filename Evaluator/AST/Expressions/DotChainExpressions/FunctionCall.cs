@@ -24,10 +24,10 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
             {
                 IContext context => functionName switch
                 {
-                    "DeckOfPlayer" => context.DeckOfPlayer(int.Parse(args[0].Evaluate().ToString())),
-                    "HandOfPlayer" => context.HandOfPlayer(int.Parse(args[0].Evaluate().ToString())),
-                    "GraveYardOfPlayer" => context.GraveYardOfPlayer(int.Parse(args[0].Evaluate().ToString())),
-                    "FieldOfPlayer" => context.FieldOfPlayer(int.Parse(args[0].Evaluate().ToString())),
+                    "DeckOfPlayer" => context.DeckOfPlayer(Convert.ToInt32(args[0].Evaluate())),
+                    "HandOfPlayer" => context.HandOfPlayer(Convert.ToInt32(args[0].Evaluate())),
+                    "GraveYardOfPlayer" => context.GraveYardOfPlayer(Convert.ToInt32(args[0].Evaluate())),
+                    "FieldOfPlayer" => context.FieldOfPlayer(Convert.ToInt32(args[0].Evaluate())),
                     _ => throw new Exception($"IContext does not have a{functionName} method"),
                 },
                 LenguajeTypes.Delegate d => functionName switch

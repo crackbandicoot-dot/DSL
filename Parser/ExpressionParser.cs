@@ -14,14 +14,13 @@ using DSL.Evaluator.AST.Expressions.TypeRestrictionExpression;
 using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.AST.Instructions.Statements;
 using DSL.Lexer;
+using System.Globalization;
 namespace DSL.Parser
 {
     internal partial class ProgramParser
     {
         private readonly LexerStream stream;
-#pragma warning disable CS0649 // El campo 'Parser.CurrentInstruction' nunca se asigna y siempre tendrá el valor predeterminado null
-        public IInstruction? CurrentInstruction;
-#pragma warning restore CS0649 // El campo 'Parser.CurrentInstruction' nunca se asigna y siempre tendrá el valor predeterminado null
+
         public ProgramParser(LexerStream stream)
         {
             this.stream = stream;
@@ -423,7 +422,7 @@ namespace DSL.Parser
             }
             else if (t.Type == TokenType.Number)
             {
-                return double.Parse(t.Value);
+                return double.Parse(t.Value,CultureInfo.InvariantCulture);
             }
             else
             {

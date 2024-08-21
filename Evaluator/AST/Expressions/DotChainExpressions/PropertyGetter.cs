@@ -22,50 +22,41 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
         public object Evaluate()
         {
             var obj = left.Evaluate();
-            if (obj is ICard c)
+            return obj switch
             {
-                return propertyName switch
+                ICard c => propertyName switch
                 {
-                    "Name"=> c.Name,
-                    "Range"=> c.Range,
-                    "Faction"=>c.Faction,
-                    "Power"=> c.Power,
-                    "Type"=> c.Type,
-                    _=> throw new Exception($"Card does not have a property{propertyName}")
-                };
-            }
-            else if (obj is IList<object> objectList)
-            {
-                return propertyName switch
+                    "Name" => c.Name,
+                    "Range" => c.Range,
+                    "Faction" => c.Faction,
+                    "Power" => c.Power,
+                    "Type" => c.Type,
+                    _ => throw new Exception($"Card does not have a property{propertyName}")
+                },
+                IList<object> objectList => propertyName switch
                 {
                     "Count" => objectList.Count,
-                    "Indexer" => objectList[int.Parse(args[0].Evaluate().ToString())],
+                    "Indexer" => objectList[Convert.ToInt32(args[0].Evaluate())],
                     _ => throw new Exception($"Exception")
-                };
-            }
-            else if (obj is IList<ICard> list)
-            {
-                return propertyName switch
+                },
+                IList<ICard> list => propertyName switch
                 {
                     "Count" => double.Parse(list.Count.ToString()),
-                    "Indexer" => list[int.Parse(args[0].Evaluate().ToString())],
+                    "Indexer" => list[Convert.ToInt32(args[0].Evaluate())],
                     _ => throw new Exception($"List does not have a property{propertyName}")
-                } ; 
-              
-            }
-            else if (obj is IContext context)
-            {
-                return propertyName switch
+                },
+                IContext context => propertyName switch
                 {
-                    "Board"=> context.Board,
-                    "TriggerPlayer"=>(double)context.TriggerPlayer,
-                    "Hand"=> context.HandOfPlayer(context.TriggerPlayer),
+                    "Board" => context.Board,
+                    "TriggerPlayer" => (double)context.TriggerPlayer,
+                    "Hand" => context.HandOfPlayer(context.TriggerPlayer),
                     "Field" => context.FieldOfPlayer(context.TriggerPlayer),
-                    "Deck"=> context.DeckOfPlayer(context.TriggerPlayer),
-                    "GraveYard"=>context.GraveYardOfPlayer(context.TriggerPlayer),
-                };
-            }
-            throw new Exception("The given type is not a valid lenguaje type");
+                    "Deck" => context.DeckOfPlayer(context.TriggerPlayer),
+                    "GraveYard" => context.GraveYardOfPlayer(context.TriggerPlayer),
+                    _ => throw new Exception($"Context type does not have a property called {propertyName}")
+                },
+                _ => throw new Exception("The given type is not a valid lenguaje type"),
+            };
         }
     }
 }
