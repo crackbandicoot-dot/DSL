@@ -29,7 +29,7 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
             object l = left.Evaluate();
             switch (l)
             {
-                case CardInfo card:
+                case ICard card:
                     switch (propertyName)
                     {
                         case "Power": card.Power = (double)value.Evaluate(); break;
