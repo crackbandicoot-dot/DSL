@@ -6,7 +6,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
     internal class TypeDeclaration : IInstruction
     {
         private static readonly string[] allowedValues = new[] {"Gold",
-            "Silver","Decoy","Leader","Weather","Boost"};
+            "Silver","Decoy","Leader","Weather","Boost","Clearing"};
         private readonly Dictionary<string, object> properties;
         private readonly CardInfo card;
 

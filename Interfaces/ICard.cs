@@ -25,7 +25,7 @@ namespace DSL.Interfaces
         string Faction { get; }
         /// <summary>
         /// The type must be  "Gold",
-        ///    "Silver","Decoy","Leader","Weather" or "Boost" in order 
+        ///    "Silver","Decoy","Leader","Weather","Clearing" or "Boost" in order 
         ///    to the compiler work correctly.
         /// </summary>
         string Type { get; }
