@@ -34,7 +34,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
                         foreach (var param in onActivationObject.Effect.Params)
                         {
                             param.Value.Check(effectsProperties[param.Key]);
-                            onActivationObject.Effect.Action.instructionBlock.ScopeVariables.Declare(param.Key, effectsProperties[param.Key]);
+                            onActivationObject.Params.Add(param.Key, effectsProperties[param.Key]);
                         }
                         if (onActivationObject.Effect.Params.Count != effectsProperties.Count - 1)
                         {

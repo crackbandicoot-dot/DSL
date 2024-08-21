@@ -6,15 +6,16 @@ namespace DSL.Evaluator.LenguajeTypes
 {
     public class OnActivationObject
     {
-#pragma warning disable CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        internal Dictionary<string,object> Params { get; set; }
         internal Effect Effect { get; set; }
-#pragma warning restore CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
-#pragma warning disable CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
         public Selector Selector { get; set; }
-#pragma warning restore CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+
         internal void Activate(IContext gameContext)
         {
-            //Select the targets
+            foreach (var param in Params)
+            {
+                Effect.Action.instructionBlock.ScopeVariables.Declare(param.Key, param.Value);
+            }
             Effect.Action.Invoke(GetTargets(gameContext), gameContext);
         }
         private IList<ICard> GetTargets(IContext gameContext)
