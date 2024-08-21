@@ -2,13 +2,14 @@
 
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
 {
     internal class PropertyGetter : IExpression
     {
-        private static readonly Dictionary<Type, PropertyInfo> propertyCache = new();
         public readonly IExpression left;
         public string propertyName;
         public readonly List<IExpression>? args;

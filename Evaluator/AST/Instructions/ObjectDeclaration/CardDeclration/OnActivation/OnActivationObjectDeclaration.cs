@@ -2,6 +2,8 @@
 using DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActivation.PostAction;
 using DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActivation.Selector;
 using DSL.Evaluator.LenguajeTypes;
+using System;
+using System.Collections.Generic;
 
 namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActivation
 {

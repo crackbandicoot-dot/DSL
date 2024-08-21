@@ -3,6 +3,9 @@
 using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
 {
@@ -33,23 +36,23 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
                 LenguajeTypes.Delegate d => functionName switch
                 {
                     "Invoke" => d.Invoke(args.Select(x => x.Evaluate()).ToArray()),
-                    _ => throw new Exception($"{l.GetType} doesn't have a{functionName} function"),
+                    _ => throw new Exception($"{l.GetType()} doesn't have a{functionName} function"),
                 },
                 IList<ICard> cardList => functionName switch
                 {
                     "Remove" => cardList.Remove((ICard)args[0].Evaluate()),
                     "Push" => cardList.Push((ICard)args[0].Evaluate()),
                     "Pop" => cardList.Pop(),
-                    _ => throw new Exception($"{l.GetType} doesn't have a{functionName} function"),
+                    _ => throw new Exception($"{l.GetType()} doesn't have a{functionName} function"),
                 },
                 IList<object> list => functionName switch
                 {
                     "Remove" => list.Remove(args[0].Evaluate()),
                     "Push" => list.Push((CardInfo)args[0].Evaluate()),
                     "Pop" => list.Pop(),
-                    _ => throw new Exception($"{l.GetType} doesn't have a{functionName} function"),
+                    _ => throw new Exception($"{l.GetType()} doesn't have a{functionName} function"),
                 },
-                _ => throw new Exception($"{l.GetType} type is not a valid lenguaje type")
+                _ => throw new Exception($"{l.GetType()} type is not a valid lenguaje type")
             };
         }
         public void Execute()

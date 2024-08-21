@@ -6,6 +6,8 @@ using DSL.Evaluator.AST.Instructions.Statements.ConditionalStatements;
 using DSL.Evaluator.AST.Instructions.Statements.LoopStatements;
 using DSL.Evaluator.AST.Instructions.Statements.SimpleStatements;
 using DSL.Lexer;
+using System;
+using System.Collections.Generic;
 
 namespace DSL.Parser
 {

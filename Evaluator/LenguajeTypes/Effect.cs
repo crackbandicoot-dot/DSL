@@ -1,5 +1,7 @@
 ﻿
 
+using System.Collections.Generic;
+
 namespace DSL.Evaluator.LenguajeTypes
 {
     internal class Effect

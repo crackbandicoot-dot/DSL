@@ -1,4 +1,6 @@
-﻿namespace DSL.Interfaces
+﻿using System.Collections.Generic;
+
+namespace DSL.Interfaces
 {
     /// <summary>
     /// Allows to know and change the state of the game.

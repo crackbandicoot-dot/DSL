@@ -2,6 +2,9 @@
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Interfaces;
 using DSL.Lexer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DSL
 {

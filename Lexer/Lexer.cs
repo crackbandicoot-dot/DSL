@@ -1,5 +1,7 @@
 ﻿// Ignore Spelling: Interpeter DSL Lexer
 
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace DSL.Lexer

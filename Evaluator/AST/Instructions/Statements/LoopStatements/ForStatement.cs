@@ -1,5 +1,7 @@
 ﻿using DSL.Evaluator.AST.Expressions;
 using DSL.Evaluator.AST.Expressions.Scope;
+using System.Collections.Generic;
+using System.Linq;
 namespace DSL.Evaluator.AST.Instructions.Statements.LoopStatements
 {
     internal class ForStatement : IInstruction

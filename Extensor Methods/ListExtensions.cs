@@ -1,4 +1,6 @@
-﻿namespace DSL.Evaluator.LenguajeTypes
+﻿using System.Collections.Generic;
+
+namespace DSL.Evaluator.LenguajeTypes
 {
     internal static class ListExtensions
     {

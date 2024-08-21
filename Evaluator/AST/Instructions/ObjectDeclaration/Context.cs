@@ -1,5 +1,6 @@
 ﻿
 using DSL.Evaluator.LenguajeTypes;
+using System.Collections.Generic;
 
 
 namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration

@@ -1,4 +1,6 @@
-﻿namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActivation.Selector
+﻿using System.Collections.Generic;
+
+namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActivation.Selector
 {
     internal class SingleDeclaration : IInstruction
     {

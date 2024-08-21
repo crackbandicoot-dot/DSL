@@ -2,6 +2,7 @@
 
 using DSL.Evaluator.AST.Instructions.ObjectDeclaration;
 using DSL.Extensor_Methods;
+using System.Collections.Generic;
 
 namespace DSL.Evaluator.AST.Instructions
 {

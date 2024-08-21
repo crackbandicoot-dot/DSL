@@ -1,4 +1,7 @@
-﻿namespace DSL.Evaluator.AST.Expressions.Scope
+﻿using System;
+using System.Collections.Generic;
+
+namespace DSL.Evaluator.AST.Expressions.Scope
 {
     internal class Scope
     {

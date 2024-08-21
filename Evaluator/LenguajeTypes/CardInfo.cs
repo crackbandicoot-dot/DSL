@@ -1,5 +1,6 @@
 ﻿// Ignore Spelling: lexer DSL
 using DSL.Interfaces;
+using System.Collections.Generic;
 
 namespace DSL.Evaluator.LenguajeTypes
 {

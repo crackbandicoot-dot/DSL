@@ -1,4 +1,7 @@
-﻿namespace DSL.Extensor_Methods
+﻿using System;
+using System.Collections.Generic;
+
+namespace DSL.Extensor_Methods
 {
     internal static class IEnumerableExtensions
     {

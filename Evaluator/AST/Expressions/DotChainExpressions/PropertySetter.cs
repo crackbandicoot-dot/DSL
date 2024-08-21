@@ -1,6 +1,8 @@
 ﻿using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
 {

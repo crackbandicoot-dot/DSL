@@ -1,4 +1,6 @@
-﻿namespace DSL.Evaluator.AST.Expressions.NumberExpressions
+﻿using System;
+
+namespace DSL.Evaluator.AST.Expressions.NumberExpressions
 {
     internal class PowerOperation : BinaryExpression
     {

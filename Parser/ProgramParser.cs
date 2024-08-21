@@ -5,6 +5,7 @@ using DSL.Evaluator.AST.Instructions.ObjectDeclaration;
 using DSL.Evaluator.AST.Instructions.ObjectDeclaration.EffectDeclaration;
 using DSL.Evaluator.AST.Instructions.ObjectDeclaration.NewFolder;
 using DSL.Lexer;
+using System.Collections.Generic;
 
 
 namespace DSL.Parser

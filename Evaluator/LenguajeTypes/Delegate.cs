@@ -1,5 +1,6 @@
 ﻿using DSL.Evaluator.AST.Expressions;
 using DSL.Evaluator.AST.Expressions.Scope;
+using System;
 
 namespace DSL.Evaluator.LenguajeTypes
 {

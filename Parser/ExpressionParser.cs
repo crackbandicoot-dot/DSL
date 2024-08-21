@@ -14,6 +14,8 @@ using DSL.Evaluator.AST.Expressions.TypeRestrictionExpression;
 using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.AST.Instructions.Statements;
 using DSL.Lexer;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 namespace DSL.Parser
 {

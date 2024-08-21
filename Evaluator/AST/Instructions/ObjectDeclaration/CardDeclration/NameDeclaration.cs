@@ -1,5 +1,7 @@
 ﻿
 using DSL.Evaluator.LenguajeTypes;
+using System;
+using System.Collections.Generic;
 
 namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
 {

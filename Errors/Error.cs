@@ -1,5 +1,4 @@
 ﻿using DSL.Lexer;
-
 namespace DSL.Errors
 {
     internal class Error

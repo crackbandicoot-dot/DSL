@@ -1,4 +1,7 @@
-﻿namespace DSL.Evaluator.LenguajeTypes
+﻿using System;
+using System.Collections.Generic;
+
+namespace DSL.Evaluator.LenguajeTypes
 {
     internal class TypeRestriction
     {
