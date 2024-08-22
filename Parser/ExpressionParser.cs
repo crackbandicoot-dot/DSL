@@ -51,6 +51,10 @@ namespace DSL.Parser
                         stream.Eat(TokenType.SumAssigment);
                         left = new Assignation(left, new MinusOperation(left, Assignation(scope)));
                         break;
+                    case TokenType.StarAssigment:
+                        stream.Eat(TokenType.StarAssigment);
+                        left = new Assignation(left, new MultiplicationOperation(left, Assignation(scope)));
+                        break;
                 }
 
             }

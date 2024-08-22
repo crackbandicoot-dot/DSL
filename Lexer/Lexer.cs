@@ -126,8 +126,7 @@ namespace DSL.Lexer
                     AdvanceChar();
                     break;
                 case '*':
-                    CurrentToken = new Token(TokenType.Star, "*", currentPos);
-                    AdvanceChar();
+                    CurrentToken = WithStarToken();
                     break;
                 case '/':
                     CurrentToken = new Token(TokenType.Slash, "/", currentPos);
@@ -203,6 +202,19 @@ namespace DSL.Lexer
 
                 AdvanceChar();
                 AdvanceLine();
+            }
+        }
+        private Token WithStarToken()
+        {
+            AdvanceChar();
+            if (_currentChar == '=')
+            {
+                AdvanceChar();
+                return new Token(TokenType.StarAssigment, "*=", currentPos);
+            }
+            else
+            {
+                return new Token(TokenType.Star, "*", currentPos);
             }
         }
         private Token WithExclamationToken()

@@ -32,7 +32,7 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
                 case ICard card:
                     switch (propertyName)
                     {
-                        case "Power": card.Power = (double)value.Evaluate(); break;
+                        case "Power": card.Power = Convert.ToDouble(value.Evaluate()); break;
                         default: throw new Exception($"Propery {propertyName} is not a setable card property");
                     };
                     break;

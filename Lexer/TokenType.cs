@@ -74,6 +74,7 @@ namespace DSL.Lexer
         Questioning,
         Modulo,
         SumAssigment,
-        MinusAssigment
+        MinusAssigment,
+        StarAssigment
     }
 }
