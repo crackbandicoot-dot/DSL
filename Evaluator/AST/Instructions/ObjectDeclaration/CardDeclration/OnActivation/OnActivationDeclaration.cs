@@ -1,6 +1,7 @@
 ﻿
 using DSL.Evaluator.LenguajeTypes;
 using DSL.Lexer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 

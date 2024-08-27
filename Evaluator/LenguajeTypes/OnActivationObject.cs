@@ -23,6 +23,7 @@ namespace DSL.Evaluator.LenguajeTypes
         }
         private IList<ICard> GetTargets(IContext gameContext)
         {
+            if(Selector is null) return new List<ICard>();
             var targetsSource = GetSource(gameContext);
             var filtred = new List<ICard>();
             foreach (var target in targetsSource)
