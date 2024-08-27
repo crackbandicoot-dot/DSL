@@ -1,4 +1,5 @@
 ﻿using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System;
 using System.Collections.Generic;
 
@@ -6,12 +7,14 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
 {
     internal class SelectorDeclaration : IInstruction
     {
+        private readonly Token onActivationToken;
         private OnActivationObject result;
         private readonly LenguajeTypes.Selector? parent;
-        private Dictionary<string, object> onActivationObj;
+        private AnonimusObject onActivationObj;
 
-        public SelectorDeclaration(OnActivationObject result, LenguajeTypes.Selector? parent, Dictionary<string, object> onActivationObj)
+        public SelectorDeclaration(Token onActivationToken,OnActivationObject result, LenguajeTypes.Selector? parent, AnonimusObject onActivationObj)
         {
+            this.onActivationToken = onActivationToken;
             this.result = result;
             this.parent = parent;
             this.onActivationObj = onActivationObj;
@@ -21,23 +24,20 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
         {
             if (onActivationObj.TryGetValue("Selector", out object? value))
             {
+                var selectorToken = onActivationObj.GetAssociatedToken("Selector");
                 //Logica para llenar Selector
                 result.Selector = new();
                 var selector = result.Selector;
-                SingleDeclaration singleDeclaration = new(selector, (Dictionary<string, object>)value);
-                SourceDeclaration sourceDeclaration = new(parent, selector, (Dictionary<string, object>)value);
-                PredicateDeclaration predicateDeclaration = new(selector, value);
+                SingleDeclaration singleDeclaration = new(selectorToken,selector, (AnonimusObject)value);
+                SourceDeclaration sourceDeclaration = new(selectorToken,parent, selector, (AnonimusObject)value);
+                PredicateDeclaration predicateDeclaration = new(selectorToken,selector, (AnonimusObject)value);
                 singleDeclaration.Execute();
                 sourceDeclaration.Execute();
                 predicateDeclaration.Execute();
             }
             else
             {
-                if (parent is null)
-                {
-                    throw new Exception("not selector to use");
-                }
-                else
+                if (parent is not null)
                 {
                     result.Selector = parent;
                 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSL.Lexer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,17 +12,14 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
             "hand","otherHand","deck","otherDeck","field",
             "otherField","board","parent"
         };
-        private readonly LenguajeTypes.Selector parent;
+        private readonly Token selectorToken;
+        private readonly LenguajeTypes.Selector? parent;
         private LenguajeTypes.Selector result;
-        private Dictionary<string, object> properties;
-
-#pragma warning disable CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
-        public SourceDeclaration(LenguajeTypes.Selector? parent, LenguajeTypes.Selector result, Dictionary<string, object> properties)
-#pragma warning restore CS8618 // Un campo que no acepta valores NULL debe contener un valor distinto de NULL al salir del constructor. Considere la posibilidad de declararlo como que admite un valor NULL.
+        private AnonimusObject properties;
+        public SourceDeclaration(Token selectorToken,LenguajeTypes.Selector? parent, LenguajeTypes.Selector result, AnonimusObject properties)
         {
-#pragma warning disable CS8601 // Posible asignación de referencia nula
+            this.selectorToken = selectorToken;
             this.parent = parent;
-#pragma warning restore CS8601 // Posible asignación de referencia nula
             this.result = result;
             this.properties = properties;
         }
@@ -30,13 +28,20 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
         {
             if (properties.TryGetValue("Source", out object? value))
             {
-
+                var sourceToken = properties.GetAssociatedToken("Source");
                 var source = (string)value;
                 if (allowedValues.Contains(source))
                 {
                     if (source == "parent")
                     {
-                        result.Source = parent.Source;
+                        if (parent is not null)
+                        {
+                            result.Source = parent.Source;
+                        }
+                        else
+                        {
+                            throw new Exception($"No parent source to assign{sourceToken.Pos}");
+                        }
                     }
                     else
                     {
@@ -45,12 +50,12 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
                 }
                 else
                 {
-                    throw new Exception($"Invalid source,source can be just {string.Join(',', allowedValues)}");
+                    throw new Exception($"Invalid source,source can be just {string.Join(',', allowedValues)} in {sourceToken.Pos}");
                 }
             }
             else
             {
-                throw new ArgumentException("Selector has not source property");
+                throw new Exception($"Selector has not source property in {selectorToken.Pos}");
             }
         }
     }

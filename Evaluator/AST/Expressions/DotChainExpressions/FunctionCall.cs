@@ -1,4 +1,5 @@
-﻿// Ignore Spelling: DSL
+﻿
+// Ignore Spelling: DSL
 
 using DSL.Evaluator.AST.Instructions;
 using DSL.Evaluator.LenguajeTypes;
@@ -48,7 +49,7 @@ namespace DSL.Evaluator.AST.Expressions.DotChainExpressions
                 IList<object> list => functionName switch
                 {
                     "Remove" => list.Remove(args[0].Evaluate()),
-                    "Push" => list.Push((CardInfo)args[0].Evaluate()),
+                    "Push" => list.Push(args[0].Evaluate()),
                     "Pop" => list.Pop(),
                     _ => throw new Exception($"{l.GetType()} doesn't have a{functionName} function"),
                 },

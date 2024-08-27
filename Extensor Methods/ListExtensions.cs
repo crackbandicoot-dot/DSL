@@ -21,12 +21,11 @@ namespace DSL.Evaluator.LenguajeTypes
             IList<T> result = new List<T>();
             foreach (var item in list)
             {
-#pragma warning disable CS8604 // Posible argumento de referencia nulo
+
                 if ((bool)(predicate.Invoke(item)))
                 {
                     result.Add(item);
                 }
-#pragma warning restore CS8604 // Posible argumento de referencia nulo
             }
             return result;
         }

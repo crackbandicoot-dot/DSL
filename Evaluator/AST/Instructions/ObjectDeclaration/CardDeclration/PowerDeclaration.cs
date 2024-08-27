@@ -1,5 +1,6 @@
 ﻿
 using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System;
 using System.Collections.Generic;
 
@@ -7,11 +8,13 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
 {
     internal class PowerDeclaration : IInstruction
     {
+        private readonly Token cardToken;
         private readonly CardInfo card;
-        private readonly Dictionary<string, object> properties;
+        private readonly AnonimusObject properties;
 
-        public PowerDeclaration(CardInfo card, Dictionary<string, object> properties)
+        public PowerDeclaration(Token cardToken,CardInfo card, AnonimusObject properties)
         {
+            this.cardToken = cardToken;
             this.card = card;
             this.properties = properties;
         }
@@ -19,12 +22,19 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
         {
             if (properties.TryGetValue("Power", out object? value))
             {
-                var power = (double)value;
-                card.Power = power;
+                var powerToken = properties.GetAssociatedToken("Power");
+                if (value is double power)
+                {
+                    card.Power = power;
+                }
+                else
+                {
+                    throw new Exception($"Power must be a number {powerToken.Pos}");
+                }
             }
             else
             {
-                throw new Exception("Card has not Power");
+                throw new Exception($"Card has not a defined Power in {cardToken.Pos}");
             }
         }
     }

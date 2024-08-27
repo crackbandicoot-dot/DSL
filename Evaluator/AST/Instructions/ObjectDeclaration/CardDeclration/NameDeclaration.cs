@@ -1,5 +1,6 @@
 ﻿
 using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System;
 using System.Collections.Generic;
 
@@ -7,11 +8,13 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
 {
     internal class NameDeclaration : IInstruction
     {
+        private readonly Token cardToken;
         private readonly CardInfo card;
-        private readonly Dictionary<string, object> properties;
+        private readonly AnonimusObject properties;
 
-        public NameDeclaration(CardInfo card, Dictionary<string, object> properties)
+        public NameDeclaration(Token cardToken,CardInfo card, AnonimusObject properties)
         {
+            this.cardToken = cardToken;
             this.card = card;
             this.properties = properties;
         }
@@ -24,7 +27,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
             }
             else
             {
-                throw new Exception("Card has not name");
+                throw new Exception($"Card has not name in {cardToken.Pos}");
             }
         }
     }

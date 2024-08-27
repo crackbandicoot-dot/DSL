@@ -1,4 +1,5 @@
 ﻿using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System;
 using System.Collections.Generic;
 
@@ -6,11 +7,13 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.EffectDeclaration
 {
     internal class NameDeclaration : IInstruction
     {
-        private readonly Dictionary<string, object> properties;
+        private readonly Token effectToken;
+        private readonly AnonimusObject properties;
         private readonly Effect effect;
 
-        public NameDeclaration(Dictionary<string, object> properties, Effect effect)
+        public NameDeclaration(Token effectToken,AnonimusObject properties, Effect effect)
         {
+            this.effectToken = effectToken;
             this.properties = properties;
             this.effect = effect;
         }
@@ -23,7 +26,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.EffectDeclaration
             }
             else
             {
-                throw new Exception("Effect has not name");
+                throw new Exception($"Effect has not name in {effectToken.Pos}");
             }
         }
     }

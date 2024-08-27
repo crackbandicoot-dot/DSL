@@ -1,18 +1,21 @@
 ﻿using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System;
 using System.Collections.Generic;
 
 namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActivation.Effect
 {
-    public class EffectInstanciation : IInstruction
+     class EffectInstantiation : IInstruction
     {
+        private readonly Token onActivationToken;
         private readonly OnActivationObject onActivationObject;
-        private readonly Dictionary<string, object> properties;
+        private readonly AnonimusObject properties;
         private readonly Context context;
 
-        public EffectInstanciation(OnActivationObject onActivationObject,
-            Dictionary<string, object> properties, Context context)
+        public EffectInstantiation(Token onActivationToken,OnActivationObject onActivationObject,
+            AnonimusObject properties, Context context)
         {
+            this.onActivationToken = onActivationToken;
             this.onActivationObject = onActivationObject;
             this.properties = properties;
             this.context = context;
@@ -23,10 +26,12 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
 
             if (properties.TryGetValue("Effect", out object? eff))
             {
-                var effectsProperties = (Dictionary<string, object>)eff;
+                var effectsProperties = (AnonimusObject)eff;
+                var effectToken = properties.GetAssociatedToken("Effect");
                 //Verificar el nombre del effecto
                 if (effectsProperties.TryGetValue("Name", out object? name))
                 {
+                    var nameToken = effectsProperties.GetAssociatedToken("Name");
                     if (context.ContainsEffect((string)name))
                     {
                         onActivationObject.Effect = context.GetEffect((string)name);
@@ -38,7 +43,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
                         }
                         if (onActivationObject.Effect.Params.Count != effectsProperties.Count - 1)
                         {
-                            throw new Exception("Unmatched parameter");
+                            throw new Exception($"Unmatched parameter in {effectToken.Pos}");
                         }
                     }
                     else
@@ -49,12 +54,12 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
 
                 else
                 {
-                    throw new Exception("Effect instanciation requires a name property");
+                    throw new Exception($"Effect instanciation requires a name property in {effectToken.Pos}");
                 }
             }
             else
             {
-                throw new Exception("OnActivation object requires a Effect property");
+                throw new Exception($"OnActivation object requires a Effect property  in {onActivationToken.Pos}");
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿
 using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,12 +8,14 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
 {
     internal class OnActivationDeclaration : IInstruction
     {
+        private readonly Token cardToken;
         private readonly CardInfo card;
-        private readonly Dictionary<string, object> properties;
+        private readonly AnonimusObject properties;
         private readonly Context context;
 
-        public OnActivationDeclaration(CardInfo card, Dictionary<string, object> properties, Context context)
+        public OnActivationDeclaration(Token cardToken,CardInfo card, AnonimusObject properties, Context context)
         {
+            this.cardToken = cardToken;
             this.card = card;
             this.properties = properties;
             this.context = context;
@@ -21,17 +24,22 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration.OnActi
         {
             if (properties.TryGetValue("OnActivation", out object? value))
             {
+                var onActivationToken = properties.GetAssociatedToken("OnActivation");
                 var OnActivation = ((List<object>)value)
-                    .Select(x => (Dictionary<string, object>)x)
+                    .Select(x => (AnonimusObject)x)
                     .ToList();
                 var result = new List<OnActivationObject>();
                 foreach (var onActivationObj in OnActivation)
                 {
                     var declaration = new
-                        OnActivationObjectDeclaration(onActivationObj, result, context);
+                        OnActivationObjectDeclaration(onActivationToken,onActivationObj, result, context);
                     declaration.Execute();
                 }
                 card.OnActivation = result;
+            }
+            else
+            {
+                throw new Exception($"Card has not OnActivation property in {cardToken.Pos}");
             }
         }
     }

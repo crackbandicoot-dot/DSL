@@ -1,5 +1,6 @@
 ﻿
 using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,13 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
     internal class FactionDeclaration : IInstruction
     {
         private static readonly string[] allowedValues = new[] { "Goods", "Bads", "Neutral" };
+        private readonly Token cardToken;
         private readonly CardInfo card;
-        private readonly Dictionary<string, object> properties;
+        private readonly AnonimusObject properties;
 
-        public FactionDeclaration(CardInfo card, Dictionary<string, object> properties)
+        public FactionDeclaration(Token cardToken,CardInfo card, AnonimusObject properties)
         {
+            this.cardToken = cardToken;
             this.card = card;
             this.properties = properties;
         }
@@ -28,12 +31,12 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
                 }
                 else
                 {
-                    throw new Exception($"Allowed values are just{string.Join(",", allowedValues)}");
+                    throw new Exception($"In {properties.GetAssociatedToken("Faction").Pos}, allowed factions values are just{string.Join(",", allowedValues)}");
                 }
             }
             else
             {
-                throw new Exception("Card has not faction");
+                throw new Exception($"Card has not faction in {cardToken.Pos}");
             }
         }
     }

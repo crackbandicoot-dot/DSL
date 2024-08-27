@@ -35,7 +35,7 @@ namespace DSL.Parser
         {
             IExpression left = TernaryOperation(scope);
             while (stream.Match(TokenType.VariableAssigmnet, TokenType.SumAssigment,
-                TokenType.MinusAssigment))
+                TokenType.MinusAssigment,TokenType.StarAssigment))
             {
                 switch (stream.CurrentToken.Type)
                 {
@@ -230,7 +230,9 @@ namespace DSL.Parser
         private IExpression FieldAcces(Scope scope)
         {
             IExpression left = Atom(scope);
-            while (stream.Match(TokenType.dot, TokenType.OpenSquareBracket, TokenType.Decrement, TokenType.Increment))
+            while (stream.Match(TokenType.dot,
+                TokenType.OpenSquareBracket,
+                TokenType.Decrement, TokenType.Increment))
             {
                 if (stream.MatchPrefix(  // .id'('
                     TokenType.dot, TokenType.Identifier,
@@ -290,18 +292,18 @@ namespace DSL.Parser
                     if (
                         stream.MatchPrefix
                         (
-                        TokenType.OpenParenthesis,
+                        TokenType.OpenParenthesis, //()
                         TokenType.ClosedParenthesis
                         )
                         ||
                         stream.MatchPrefix
-                        (TokenType.OpenParenthesis,
+                        (TokenType.OpenParenthesis, //(id)=>
                         TokenType.Identifier,
                         TokenType.ClosedParenthesis,
                         TokenType.FunctionAssigment)
                         || stream.MatchPrefix
                         (TokenType.OpenParenthesis,
-                        TokenType.Identifier,
+                        TokenType.Identifier,      //(id,
                         TokenType.Comma
                         )
                         )
@@ -437,7 +439,7 @@ namespace DSL.Parser
         }
         private IExpression AnonimusTypeExpression(Scope scope)
         {
-            Dictionary<string, IExpression> properties = new();
+            Dictionary<Token, IExpression> properties = new();
             if (stream.MatchPrefix(TokenType.OpenCurlyBracket,
                 TokenType.ClosedCurlyBracket))
             {
@@ -458,9 +460,9 @@ namespace DSL.Parser
                 return new AnonimusTypeExpression(properties);
             }
         }
-        private void Property(Dictionary<string, IExpression> properties, Scope scope)
+        private void Property(Dictionary<Token, IExpression> properties, Scope scope)
         {
-            string id = stream.Eat(TokenType.Identifier).Value;
+            var id = stream.Eat(TokenType.Identifier);
             stream.Eat(TokenType.PropertyAssigment);
             IExpression value = Exp(scope);
             properties.Add(id, value);

@@ -1,5 +1,6 @@
 ﻿
 using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,13 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
     {
         private static readonly string[] allowedValues = new[] {"Gold",
             "Silver","Decoy","Leader","Weather","Boost","Clearing"};
-        private readonly Dictionary<string, object> properties;
+        private readonly AnonimusObject properties;
+        private readonly Token cardToken;
         private readonly CardInfo card;
 
-        public TypeDeclaration(CardInfo card, Dictionary<string, object> properties)
+        public TypeDeclaration(Token cardToken, CardInfo card, AnonimusObject properties)
         {
+            this.cardToken = cardToken;
             this.card = card;
             this.properties = properties;
         }
@@ -22,6 +25,7 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
         {
             if (properties.TryGetValue("Type", out object? value))
             {
+                var typeToken = properties.GetAssociatedToken("Type");
                 var type = (string)value;
                 if (allowedValues.Contains(type))
                 {
@@ -29,12 +33,12 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.CardDeclration
                 }
                 else
                 {
-                    throw new Exception($"Allowed values are just{string.Join(",", allowedValues)}");
+                    throw new Exception($"Allowed values of Type are just{string.Join(",", allowedValues)} in {typeToken.Pos}");
                 }
             }
             else
             {
-                throw new Exception("Card has not Type");
+                throw new Exception($"Card has not Type in {cardToken.Pos}");
             }
         }
     }

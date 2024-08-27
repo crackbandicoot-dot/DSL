@@ -31,15 +31,15 @@ namespace DSL.Parser
         }
         private CardDeclaration Card(Context context)
         {
-            stream.Eat(TokenType.Card);
+            var cardToken =  stream.Eat(TokenType.Card);
             IExpression body = AnonimusTypeExpression(null);
-            return new CardDeclaration(context, body);
+            return new CardDeclaration(cardToken,context, body);
         }
         private EffectDeclaration Effect(Context context)
         {
-            stream.Eat(TokenType.Effect);
+            var effectToken = stream.Eat(TokenType.Effect);
             IExpression body = AnonimusTypeExpression(null);
-            return new EffectDeclaration(context, body);
+            return new EffectDeclaration(effectToken,context, body);
         }
     }
 

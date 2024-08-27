@@ -1,4 +1,5 @@
 ﻿using DSL.Evaluator.LenguajeTypes;
+using DSL.Lexer;
 using System;
 using System.Collections.Generic;
 
@@ -6,25 +7,27 @@ namespace DSL.Evaluator.AST.Instructions.ObjectDeclaration.EffectDeclaration
 {
     internal class ActionDeclaration : IInstruction
     {
-        private readonly Dictionary<string, object> properties;
+        private readonly Token effectToken;
+        private readonly AnonimusObject effectProperties;
         private readonly Effect effect;
 
-        public ActionDeclaration(Dictionary<string, object> properties, Effect effect)
+        public ActionDeclaration(Token effectToken,AnonimusObject properties, Effect effect)
         {
-            this.properties = properties;
+            this.effectToken = effectToken;
+            this.effectProperties = properties;
             this.effect = effect;
         }
 
         public void Execute()
         {
-            if (properties.TryGetValue("Action", out object? value))
+            if (effectProperties.TryGetValue("Action", out object? value))
             {
                 var action = (LenguajeTypes.Action)value;
                 effect.Action = action;
             }
             else
             {
-                throw new Exception("Effect does not contain an action def");
+                throw new Exception($"Effect does not contain an action def in {effectToken.Pos}");
             }
         }
     }
