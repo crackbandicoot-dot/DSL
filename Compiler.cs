@@ -20,8 +20,8 @@ namespace DSL
         /// provided by the user.
         /// </summary>
         /// <param name="programString">string representation of the DSL program</param>
-        /// <param name="cardFactory">card factory that will be used to instanciate the cards</param>
-        ///<param name="printFunction">function the compiller wil use in order to execute the print statement</param>
+        /// <param name="cardFactory">card factory that will be used to instantiate the cards</param>
+        ///<param name="printFunction">function the compiler will use in order to execute the print statement</param>
         /// <returns></returns>
         public static IEnumerable<ICard> Compile(string programString,ICardFactory cardFactory,Action<string> printFunction)
         {
